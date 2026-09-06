@@ -1,0 +1,42 @@
+name: Build campus model
+# Runs the whole pipeline on a GitHub-hosted runner and attaches the models as a downloadable artifact.
+# Start it from the Actions tab -> "Build campus model" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      lidar:
+        description: 'Download USGS LiDAR (true/false). false = LOD1 blocks from OSM tags only'
+        default: 'true'
+      project:
+        description: 'Optional text filter for the LiDAR project name (see fetch_lidar.py --list output)'
+        default: ''
+      res:
+        description: 'Roof grid resolution in meters (0.5 = finer edges, slower)'
+        default: '1.0'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Footprints and aerial photo
+        run: |
+          python fetch_osm.py
+          python fetch_naip.py || echo "no orthophoto; continuing untextured"
+      - name: List LiDAR coverage
+        run: python fetch_lidar.py --list
+      - name: Download LiDAR
+        if: ${{ inputs.lidar == 'true' }}
+        run: python fetch_lidar.py --yes ${{ inputs.project != '' && format('--project "{0}"', inputs.project) || '' }}
+      - name: Build model
+        run: python build_model.py --align-st-charles --surface --obj --res ${{ inputs.res }} --max-points 40000000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tulane-campus-model
+          path: out/
+          retention-days: 30

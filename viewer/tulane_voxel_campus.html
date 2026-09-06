@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Tulane Uptown — voxel campus</title>
+<style>
+  :root{
+    --green:#006747; --green-deep:#0b4a36; --sky:#418fde; --paper:#f8f5ee; --ink:#1d2b26; --muted:#5f6f68;
+    --tile-shadow:#aeb9c2;
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Avenir Next Rounded", "Segoe UI", system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#d7ecf6;color:var(--ink);-webkit-text-size-adjust:100%}
+  #app{position:fixed;inset:0}
+  canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+
+  .brand{position:absolute;left:12px;top:max(12px, env(safe-area-inset-top));pointer-events:none;user-select:none}
+  .brand h1{margin:0;font-size:20px;line-height:1.05;font-weight:800;color:var(--green-deep);letter-spacing:-.01em;
+    text-shadow:0 2px 0 #fff,0 0 12px rgba(255,255,255,.9)}
+  .brand p{margin:3px 0 0;font-size:12px;font-weight:600;color:#25463b;text-shadow:0 1px 0 #fff,0 0 8px #fff}
+  @media (min-width:700px){.brand h1{font-size:26px}.brand p{font-size:13px}}
+
+  #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .lbl{position:absolute;left:0;top:0;transform:translate(-50%,-100%);white-space:nowrap;font-size:11px;font-weight:700;
+    color:#173a2f;background:rgba(255,255,255,.85);border-radius:8px;padding:2px 6px;box-shadow:0 2px 0 rgba(23,58,47,.18);
+    will-change:transform;display:none}
+  .lbl.ctx{color:#6a5d4f;background:rgba(255,255,255,.7);font-weight:600}
+  .lbl.on{display:block}
+
+  .tip{position:absolute;max-width:min(300px,78vw);background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 5px 0 var(--tile-shadow),0 12px 24px rgba(20,40,60,.18);
+    font-size:13px;line-height:1.35;pointer-events:none;transform:translate(-50%,-115%);z-index:5}
+  .tip b{display:block;font-size:14px;color:var(--green-deep)}
+  .tip small{display:block;color:var(--muted);margin-top:2px}
+
+  .scalebar{position:absolute;right:14px;top:max(14px, env(safe-area-inset-top));pointer-events:none;text-align:right;font-size:11px;font-weight:700;color:#1d3d32}
+  .scalebar i{display:block;height:6px;border:2px solid #1d3d32;border-top:none;margin-left:auto;background:rgba(255,255,255,.6)}
+
+  .dock{position:absolute;left:0;right:0;bottom:max(10px, env(safe-area-inset-bottom));display:flex;justify-content:center;gap:8px;padding:0 10px;
+    flex-wrap:wrap;pointer-events:none}
+  .dock > *{pointer-events:auto}
+  .btn{appearance:none;border:0;background:#fff;color:var(--ink);font:inherit;font-weight:800;font-size:14px;min-width:44px;height:44px;padding:0 12px;
+    border-radius:12px;box-shadow:0 4px 0 var(--tile-shadow);cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center;
+    transition:transform .06s,box-shadow .06s}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--tile-shadow)}
+  .btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+  .btn.on{background:var(--green);color:#fff;box-shadow:0 4px 0 #003d2a}
+  .btn .k{font-size:17px;line-height:1}
+  select.btn{padding-right:28px;background-image:linear-gradient(45deg,transparent 50%,#1d2b26 50%),linear-gradient(135deg,#1d2b26 50%,transparent 50%);
+    background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;background-size:5px 5px;background-repeat:no-repeat;max-width:46vw;
+    text-overflow:ellipsis}
+  .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom));font-size:12px;font-weight:600;color:#25463b;
+    background:rgba(255,255,255,.75);padding:4px 10px;border-radius:10px;pointer-events:none;transition:opacity .4s}
+  .hint.gone{opacity:0}
+
+  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:78vh;overflow:auto;background:var(--paper);border-radius:22px 22px 0 0;
+    box-shadow:0 -10px 30px rgba(20,40,60,.25);padding:14px 16px calc(20px + env(safe-area-inset-bottom));z-index:8;
+    -webkit-overflow-scrolling:touch}
+  .sheet[hidden]{display:none}
+  .sheet .grab{width:44px;height:5px;border-radius:3px;background:#cdd3cf;margin:0 auto 10px}
+  .sheet h2{font-size:17px;margin:14px 0 6px;color:var(--green-deep)}
+  .sheet h2:first-of-type{margin-top:2px}
+  .sheet p,.sheet li{font-size:13.5px;line-height:1.45;margin:0 0 6px}
+  .sheet ol{padding-left:20px;margin:4px 0 8px}
+  .sheet code,.sheet pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+  .sheet pre{background:#eef1ec;border-radius:10px;padding:10px;overflow:auto;white-space:pre;margin:6px 0 8px;max-height:150px;color:#233}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 10px}
+  .btn.sm{height:38px;font-size:13px;padding:0 12px}
+  textarea{width:100%;min-height:90px;border:2px solid #d5dbd7;border-radius:10px;padding:8px;font:12px ui-monospace,Menlo,monospace;background:#fff;resize:vertical}
+  .close{position:absolute;right:10px;top:10px}
+  .note{background:#e6f1ec;border-left:4px solid var(--green);padding:8px 10px;border-radius:8px;font-size:13px;margin:6px 0 10px}
+  .status{font-size:12.5px;color:var(--muted);min-height:1.2em}
+  a{color:var(--green)}
+  input[type=file]{font-size:13px;max-width:100%}
+  @media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c" tabindex="0" aria-label="3D voxel map of the Tulane uptown campus"></canvas>
+  <div id="labels"></div>
+  <header class="brand"><h1>Tulane Uptown</h1><p id="subtitle">Voxel campus · reference layout · 1 unit = 1 m</p></header>
+  <div class="scalebar"><span id="scaleText">100 m</span><i id="scaleBar" style="width:80px"></i></div>
+  <div id="tip" class="tip" hidden></div>
+  <div id="hint" class="hint">Drag to pan · pinch or scroll to zoom · two fingers or Shift+drag to rotate · tap a building</div>
+  <nav class="dock" aria-label="Map controls">
+    <button class="btn" id="zoomOut" title="Zoom out"><span class="k">−</span></button>
+    <button class="btn" id="zoomIn" title="Zoom in"><span class="k">+</span></button>
+    <button class="btn" id="rotate" title="Rotate view"><span class="k">⟳</span></button>
+    <button class="btn" id="reset" title="Reset view"><span class="k">⌂</span></button>
+    <button class="btn on" id="labelsBtn" title="Building names">Names</button>
+    <button class="btn on" id="trafficBtn" title="Streetcar, cars and students">Life</button>
+    <select class="btn" id="goto" aria-label="Go to a building"><option value="">Go to…</option></select>
+    <button class="btn" id="more" title="Import real footprints, export for your game engine">Data</button>
+  </nav>
+
+  <section id="sheet" class="sheet" hidden aria-label="Data and export">
+    <div class="grab"></div>
+    <button class="btn sm close" id="closeSheet">Close</button>
+    <h2>What you're looking at</h2>
+    <p>A voxel reconstruction of the uptown campus: St. Charles Avenue and Audubon Park at the front, Freret and Willow streets crossing the campus, the athletics complex back at Claiborne. Building positions come from campus maps plus published coordinates for Yulman Stadium, Turchin Stadium and Devlin Fieldhouse; footprints and heights are estimates, so treat this as a blocking-out pass, not a survey.</p>
+    <div class="note">To make it survey-accurate, load real building footprints from OpenStreetMap below. The importer extrudes every footprint to scale, draws the streets, streetcar tracks and trees, and keeps the same voxel look.</div>
+
+    <h2>Load real footprints (to scale)</h2>
+    <ol>
+      <li>Open <a href="https://overpass-turbo.eu" target="_blank" rel="noopener">overpass-turbo.eu</a>.</li>
+      <li>Paste this query and press Run.</li>
+      <li>Export → GeoJSON, then load the file here. (Or load <code>out/tulane_enriched.geojson</code> from the LiDAR pipeline — every footprint then carries its laser-measured height.)</li>
+    </ol>
+    <div class="row"><button class="btn sm" id="copyQuery">Copy query</button><span class="status" id="copyStatus"></span></div>
+<pre id="query">[out:json][timeout:120];
+(
+  way["building"](29.9330,-90.1290,29.9500,-90.1120);
+  relation["building"](29.9330,-90.1290,29.9500,-90.1120);
+  way["highway"](29.9330,-90.1290,29.9500,-90.1120);
+  way["railway"="tram"](29.9330,-90.1290,29.9500,-90.1120);
+  node["natural"="tree"](29.9330,-90.1290,29.9500,-90.1120);
+  way["leisure"](29.9330,-90.1290,29.9500,-90.1120);
+  way["landuse"="grass"](29.9330,-90.1290,29.9500,-90.1120);
+  way["amenity"="parking"](29.9330,-90.1290,29.9500,-90.1120);
+  way["natural"="water"](29.9330,-90.1290,29.9500,-90.1120);
+);
+out body;
+>;
+out skel qt;</pre>
+    <div class="row"><input type="file" id="file" accept=".geojson,.json,application/geo+json,application/json"></div>
+    <p>Or paste GeoJSON (or a layout JSON you exported from here) and load it:</p>
+    <textarea id="paste" placeholder='{"type":"FeatureCollection", ...}'></textarea>
+    <div class="row"><button class="btn sm" id="loadPaste">Load pasted data</button><button class="btn sm" id="restore">Back to reference layout</button><span class="status" id="loadStatus"></span></div>
+
+    <h2>Export for your game engine</h2>
+    <p>Meters, Y-up, one object per building, colors in the .mtl. Imports directly into Unity, Godot, Unreal and Blender.</p>
+    <div class="row"><button class="btn sm" id="exportObj">Download .obj + .mtl</button><button class="btn sm" id="exportJson">Download layout JSON</button><span class="status" id="exportStatus"></span></div>
+    <p class="status">If a download doesn't start inside a chat preview, open this HTML file in a normal browser tab and try again.</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script id="app-script">
+/* Tulane Uptown voxel campus — single-file Three.js scene.
+   Frame: x = along St. Charles Ave toward downtown (Loyola side), z = toward St. Charles / Audubon Park (campus extends into -z), y = up. Units are meters. */
+const HEADLESS = typeof document === 'undefined';
+const T = THREE;
+
+/* ---------- palette ---------- */
+const PAL = {
+  grass:'#9fd45e', grass2:'#95ca55', turf:'#4faa55', pitch:'#63b95a',
+  road:'#6f7d98', dash:'#b9c5d8', sidewalk:'#efe8d6', path:'#f1ead9', plaza:'#e9e1cc', lot:'#a9abae', water:'#7fd0e8', dirt:'#d8b787',
+  stone:'#d1c9bc', stone2:'#c4b9a9', roofRed:'#8f4d3d', roofDark:'#6b4a3a', roofGray:'#8f9aa3',
+  brick:'#b7583f', brick2:'#a84e38', brick3:'#c46a50', brick4:'#9c4633',
+  beige:'#e2d6bd', tan:'#cdb290', cream:'#f5f0e4', white:'#f7f4ec', glass:'#9fd4e8', glass2:'#7bbcd6', zinc:'#a3acb4', concrete:'#e9e3d5', gray:'#b8b6b0',
+  tulaneGreen:'#006747', skyBlue:'#418fde',
+  win:'#3b4a5f', door:'#5a3f34', trunk:'#6f4b33', leaf:['#4f9c3d','#3f8330','#66b24a','#579f3a'],
+  streetcar:'#4b6b34', trim:'#b13a33', scRoof:'#c9c2b1', scWin:'#f2e6c2',
+  skin:['#f1c9a5','#d9a982','#c98d63','#a66d45','#8d5a3a'], hair:['#2b2118','#5a3a24','#c9a25a','#1a1a1a','#8b4a2b'],
+  shirt:['#006747','#418fde','#f2a93b','#ef5f5f','#ffffff','#a97fe6','#63d0c8','#f47ab0'],
+  cars:['#f2a93b','#ef5f5f','#4fb0e8','#8bd45f','#a97fe6','#f7d64a','#ff8b5a','#63d0c8','#f47ab0','#5c6bc0','#ffffff'],
+  houses:['#f6e7c8','#f7c5c5','#cfd9f7','#cfeedd','#ffe0b3','#e8d5f5','#fff3b0','#d6f0f5','#f9d9c4'],
+  houseRoofs:['#c95a4b','#7a8bd6','#6f9b6e','#c9a26a','#8f7a6b','#a56b7c']
+};
+
+/* ---------- materials & geometry helpers ---------- */
+const matCache = new Map();
+function mat(hex){ let m = matCache.get(hex); if(!m){ m = new T.MeshLambertMaterial({color:new T.Color(hex)}); matCache.set(hex,m);} return m; }
+function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0); }
+function rnd(seed){ let s = seed>>>0 || 1; return ()=>{ s = (s*1664525 + 1013904223)>>>0; return s/4294967296; }; }
+
+/* Geometry buffer that merges many boxes into one BufferGeometry (voxel style, flat faces). */
+class GeoBuf {
+  constructor(){ this.pos=[]; this.nor=[]; this.idx=[]; this.n=0; }
+  box(cx,cy,cz,w,h,d,ry=0){
+    const hw=w/2, hh=h/2, hd=d/2, c=Math.cos(ry), s=Math.sin(ry);
+    const faces=[ // normal, t1, t2 (t1 x t2 = normal)
+      [[1,0,0],[0,0,-hd],[0,hh,0]], [[-1,0,0],[0,0,hd],[0,hh,0]],
+      [[0,1,0],[hw,0,0],[0,0,-hd]], [[0,-1,0],[hw,0,0],[0,0,hd]],
+      [[0,0,1],[hw,0,0],[0,hh,0]], [[0,0,-1],[-hw,0,0],[0,hh,0]] ];
+    for(const [n,t1,t2] of faces){
+      const cxo = n[0]*hw, cyo=n[1]*hh, czo=n[2]*hd; // face center offset
+      const corners=[[-1,-1],[1,-1],[1,1],[-1,1]];
+      const base=this.n;
+      const nx = n[0]*c + n[2]*s, nz = -n[0]*s + n[2]*c;
+      for(const [a,b] of corners){
+        const x = cxo + a*t1[0] + b*t2[0], y = cyo + a*t1[1] + b*t2[1], z = czo + a*t1[2] + b*t2[2];
+        const rx = x*c + z*s, rz = -x*s + z*c;
+        this.pos.push(cx+rx, cy+y, cz+rz); this.nor.push(nx, n[1], nz);
+      }
+      this.idx.push(base,base+1,base+2, base,base+2,base+3); this.n+=4;
+    }
+  }
+  get empty(){ return this.n===0; }
+  build(){ const g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(this.pos,3)); g.setAttribute('normal',new T.Float32BufferAttribute(this.nor,3)); g.setIndex(this.idx); g.computeBoundingSphere(); return g; }
+  mesh(hex, opts={}){ const m=new T.Mesh(this.build(), mat(hex)); m.castShadow = opts.cast!==false; m.receiveShadow = opts.receive!==false; if(opts.name) m.name=opts.name; return m; }
+}
+
+/* ---------- scene content: shared builders ---------- */
+class Content {
+  constructor(root){
+    this.root = root;              // static group
+    this.buildings = [];           // {name, pos:Vector3(label), grp, major, ctx, info}
+    this.pickables = [];
+    this.windows = [];             // Matrix4 list
+    this.trees = [];               // {x,z,s,h,tint}
+    this.movers = [];              // dynamic objects
+    this.doorBuf = new GeoBuf(); this.trimBuf = new GeoBuf();
+    this.patches = new Map();      // color -> GeoBuf (ground patches)
+    this.bounds = {minX:-500,maxX:700,minZ:-1450,maxZ:300};
+    this.roadPaths = [];           // for cars {pts:[Vector3], w}
+    this.walkPaths = [];
+    this.tramPaths = [];
+  }
+  patch(x0,z0,x1,z1,hex,top=0.05,thick=0.06){
+    let b=this.patches.get(hex); if(!b){ b=new GeoBuf(); this.patches.set(hex,b); }
+    const w=Math.abs(x1-x0), d=Math.abs(z1-z0); b.box((x0+x1)/2, top-thick/2, (z0+z1)/2, w, thick, d);
+  }
+  patchRot(cx,cz,w,d,ry,hex,top=0.05,thick=0.06){ let b=this.patches.get(hex); if(!b){ b=new GeoBuf(); this.patches.set(hex,b);} b.box(cx,top-thick/2,cz,w,thick,d,ry); }
+  tree(x,z,s=1,h=1,tint=0){ this.trees.push({x,z,s,h,tint}); }
+  win(x,y,z,ry){ const m=new T.Matrix4(); m.makeRotationY(ry); m.setPosition(x,y,z); this.windows.push(m); }
+  /* windows on the 4 faces of an axis-aligned block */
+  facadeWindows(cx,cz,w,d,y0,h,floorH=3.7, skipFront=false){
+    const floors = Math.max(1, Math.floor((h-1.0)/floorH));
+    const faces=[ [0,0,1, w, 0, d/2], [0,0,-1, w, 0, -d/2], [1,0,0, d, w/2, 0], [-1,0,0, d, -w/2, 0] ];
+    for(const [nx,ny,nz,L,ox,oz] of faces){
+      if(skipFront && nz===1) continue;
+      const count = Math.floor((L-3.2)/3.1); if(count<1) continue;
+      const span=(count-1)*3.1;
+      for(let f=0;f<floors;f++){
+        const y = y0 + 1.9 + f*floorH; if(y+1.0 > y0+h) break;
+        for(let i=0;i<count;i++){
+          const t = -span/2 + i*3.1;
+          if(nz!==0){ this.win(cx+t, y, cz+oz+nz*0.18, 0); }
+          else { this.win(cx+ox+nx*0.18, y, cz+t, Math.PI/2); }
+        }
+      }
+    }
+  }
+  door(cx,cz,w,d,side='front',hex=PAL.door){
+    // side: front = +z face (toward St. Charles), back = -z, left = -x, right = +x
+    if(side==='front') this.doorBuf.box(cx, 1.5, cz+d/2+0.2, 2.6, 3.0, 0.5);
+    else if(side==='back') this.doorBuf.box(cx, 1.5, cz-d/2-0.2, 2.6, 3.0, 0.5);
+    else if(side==='right') this.doorBuf.box(cx+w/2+0.2, 1.5, cz, 0.5, 3.0, 2.6);
+    else this.doorBuf.box(cx-w/2-0.2, 1.5, cz, 0.5, 3.0, 2.6);
+  }
+  roofStack(buf, cx, cz, w, d, y, hTotal, steps=3, minW=1.5){
+    let curW=w, curD=d, yy=y-0.1; const inset=Math.max(1.2, Math.min(w,d)*0.16), sh=hTotal/steps;
+    for(let i=0;i<steps;i++){ if(curW<minW||curD<minW) break; buf.box(cx, yy+sh/2, cz, curW, sh, curD); yy+=sh; curW-=inset*2; curD-=inset*2; }
+  }
+  /* A building made of blocks. spec: {name,x,z,w,d,h,color,roof:{h,color,steps},tower:{w,d,h,color,dx,dz,roofH},extra:[{dx,dz,w,d,h,color}],stack:[{w,d,h,color}],trim:bool,door:'front'|..,windows:bool,major,ctx,year,note,tag} */
+  building(spec){
+    const {name,x,z,w,d,h} = spec; const color=spec.color||PAL.beige;
+    const grp=new T.Group(); grp.name=name; grp.position.set(x,0,z);
+    const body=new GeoBuf(); body.box(0,h/2,0,w,h,d);
+    let top=h;
+    if(spec.stack){ for(const s of spec.stack){ const sb=new GeoBuf(); sb.box(s.dx||0, top+s.h/2, s.dz||0, s.w, s.h, s.d); grp.add(sb.mesh(s.color||color)); if(spec.windows!==false && s.h>3.5) this.facadeWindows(x+(s.dx||0), z+(s.dz||0), s.w, s.d, top, s.h); top+=s.h; } }
+    const bodyMesh=body.mesh(color,{name:name}); bodyMesh.userData.building=grp; grp.add(bodyMesh); this.pickables.push(bodyMesh);
+    if(spec.extra){ for(const e of spec.extra){ const eb=new GeoBuf(); eb.box(e.dx||0, (e.y||0)+e.h/2, e.dz||0, e.w, e.h, e.d); const em=eb.mesh(e.color||color); em.userData.building=grp; grp.add(em); this.pickables.push(em);
+      if(spec.windows!==false && e.h>3.5 && e.windows!==false) this.facadeWindows(x+(e.dx||0), z+(e.dz||0), e.w, e.d, e.y||0, e.h); if(e.roof){ const rb=new GeoBuf(); this.roofStack(rb, e.dx||0, e.dz||0, e.w, e.d, (e.y||0)+e.h, e.roof.h||4, e.roof.steps||2); grp.add(rb.mesh(e.roof.color||PAL.roofGray)); } } }
+    if(spec.roof){ const rb=new GeoBuf(); this.roofStack(rb, 0, 0, w, d, top, spec.roof.h||5, spec.roof.steps||3); grp.add(rb.mesh(spec.roof.color||PAL.roofRed)); top += spec.roof.h||5; }
+    if(spec.trim){ const tb=new GeoBuf(); tb.box(0, h-0.75, 0, w+0.6, 1.0, d+0.6); grp.add(tb.mesh(PAL.white)); }
+    if(spec.tower){ const t=spec.tower; const tb=new GeoBuf(); tb.box(t.dx||0, t.h/2, t.dz||0, t.w, t.h, t.d); const tm=tb.mesh(t.color||color); tm.userData.building=grp; grp.add(tm); this.pickables.push(tm);
+      if(t.roofH){ const rb=new GeoBuf(); this.roofStack(rb, t.dx||0, t.dz||0, t.w, t.d, t.h, t.roofH, 3); grp.add(rb.mesh(t.roofColor||spec.roof?.color||PAL.roofRed)); }
+      top=Math.max(top, t.h+(t.roofH||0)); if(spec.windows!==false) this.facadeWindows(x+(t.dx||0), z+(t.dz||0), t.w, t.d, h, t.h-h, 3.7); }
+    if(spec.windows!==false) this.facadeWindows(x,z,w,d,0,h, spec.floorH||3.7);
+    if(spec.door!==false) this.door(x,z,w,d, spec.door||'front');
+    this.root.add(grp);
+    const rec={name, pos:new T.Vector3(x, top+2.5, z), grp, major:!!spec.major, ctx:!!spec.ctx, info:spec};
+    grp.userData.rec=rec; this.buildings.push(rec); return grp;
+  }
+  /* finalize instanced windows, trees, ground patches, doors */
+  finish(){
+    if(!this.doorBuf.empty) this.root.add(this.doorBuf.mesh(PAL.door,{cast:false}));
+    for(const [hex,b] of this.patches){ const m=b.mesh(hex,{cast:false}); m.name='ground_'+hex.slice(1); this.root.add(m); }
+    if(this.windows.length){
+      const g=new T.BoxGeometry(1.35,1.75,0.4); const im=new T.InstancedMesh(g, mat(PAL.win), this.windows.length);
+      this.windows.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=false; im.receiveShadow=false; im.name='windows'; this.root.add(im);
+    }
+    if(this.trees.length){
+      const trunk=new T.BoxGeometry(1.4,3.2,1.4); trunk.translate(0,1.6,0);
+      const cb=new GeoBuf(); cb.box(0,1.7,0,7.2,3.4,7.2); cb.box(0,4.2,0,5.2,2.6,5.2); cb.box(0,6.2,0,3.2,2.2,3.2); cb.box(3.4,1.2,0.8,2.6,2.4,2.6); cb.box(-3.2,1.0,-1.0,2.4,2.2,2.4);
+      const canopy=cb.build();
+      const ti=new T.InstancedMesh(trunk, mat(PAL.trunk), this.trees.length); const ci=new T.InstancedMesh(canopy, mat('#ffffff'), this.trees.length);
+      const m=new T.Matrix4(), q=new T.Quaternion(), p=new T.Vector3(), s=new T.Vector3(); const col=new T.Color();
+      this.trees.forEach((t,i)=>{ const th=3.0*t.h; p.set(t.x,0,t.z); s.set(t.s,t.h,t.s); m.compose(p,q,s); ti.setMatrixAt(i,m); p.set(t.x, th, t.z); s.set(t.s, t.s*0.9, t.s); m.compose(p,q,s); ci.setMatrixAt(i,m); col.set(PAL.leaf[t.tint%PAL.leaf.length]); ci.setColorAt(i,col); });
+      ti.instanceMatrix.needsUpdate=true; ci.instanceMatrix.needsUpdate=true; if(ci.instanceColor) ci.instanceColor.needsUpdate=true;
+      ti.castShadow=true; ci.castShadow=true; ci.receiveShadow=true; ti.name='tree_trunks'; ci.name='tree_canopies'; this.root.add(ti, ci);
+    }
+    return this;
+  }
+}
+
+/* ---------- movers: cars, streetcar, students ---------- */
+function makeCar(hex){
+  const g=new T.Group(); g.name='car';
+  const b=new GeoBuf(); b.box(0,1.1,0,4.4,1.3,2.0); g.add(b.mesh(hex));
+  const c=new GeoBuf(); c.box(-0.3,2.2,0,2.3,0.9,1.75); g.add(c.mesh(PAL.win));
+  const r=new GeoBuf(); r.box(-0.3,2.8,0,2.5,0.35,1.9); g.add(r.mesh('#f7f7f4'));
+  const w=new GeoBuf(); for(const sx of [-1.45,1.45]) for(const sz of [-0.95,0.95]) w.box(sx,0.42,sz,0.85,0.84,0.45); g.add(w.mesh('#242424'));
+  const l=new GeoBuf(); l.box(2.2,1.2,0.65,0.15,0.35,0.4); l.box(2.2,1.2,-0.65,0.15,0.35,0.4); g.add(l.mesh('#fff4b0'));
+  return g;
+}
+function makeStreetcar(){
+  const g=new T.Group(); g.name='streetcar';
+  const b=new GeoBuf(); b.box(0,1.9,0,13,2.6,2.4); g.add(b.mesh(PAL.streetcar));
+  const w=new GeoBuf(); w.box(0,2.45,0,11.2,1.1,2.55); g.add(w.mesh(PAL.scWin));
+  const t=new GeoBuf(); t.box(0,1.85,0,11.4,0.16,2.6); t.box(0,3.05,0,11.4,0.16,2.6); g.add(t.mesh(PAL.trim));
+  const r=new GeoBuf(); r.box(0,3.4,0,13.4,0.4,2.7); r.box(0,3.85,0,8,0.5,1.6); g.add(r.mesh(PAL.scRoof));
+  const p=new GeoBuf(); p.box(-2,5.0,0,0.18,2.4,0.18); g.add(p.mesh('#333'));
+  const k=new GeoBuf(); k.box(-3.6,0.35,0,2.6,0.7,2.0); k.box(3.6,0.35,0,2.6,0.7,2.0); g.add(k.mesh('#2a2a2a'));
+  const h=new GeoBuf(); h.box(6.55,1.7,0,0.12,0.45,0.45); h.box(-6.55,1.7,0,0.12,0.45,0.45); g.add(h.mesh('#fff1a8'));
+  return g;
+}
+function makeStudent(seed){
+  const R=rnd(seed); const g=new T.Group(); g.name='student';
+  const skin=PAL.skin[Math.floor(R()*PAL.skin.length)], hair=PAL.hair[Math.floor(R()*PAL.hair.length)], shirt=PAL.shirt[Math.floor(R()*PAL.shirt.length)], pants=['#2f3f66','#3b3b3b','#7a5c48','#4a6a8a'][Math.floor(R()*4)];
+  const legs=[]; for(const sz of [-0.2,0.2]){ const lb=new GeoBuf(); lb.box(0,-0.4,0,0.34,0.8,0.34); const lm=lb.mesh(pants); lm.position.set(0,0.8,sz); g.add(lm); legs.push(lm); }
+  const tb=new GeoBuf(); tb.box(0,1.25,0,0.55,0.9,0.85); g.add(tb.mesh(shirt));
+  const ab=new GeoBuf(); ab.box(0,1.2,0.55,0.3,0.7,0.24); ab.box(0,1.2,-0.55,0.3,0.7,0.24); g.add(ab.mesh(skin));
+  const hb=new GeoBuf(); hb.box(0,2.0,0,0.6,0.6,0.6); g.add(hb.mesh(skin));
+  const hr=new GeoBuf(); hr.box(0,2.34,0,0.66,0.22,0.66); hr.box(-0.28,2.05,0,0.12,0.4,0.66); g.add(hr.mesh(hair));
+  const bp=new GeoBuf(); bp.box(-0.42,1.3,0,0.28,0.65,0.6); g.add(bp.mesh(['#e04b4b','#3b6fc9','#111','#f0b53c'][Math.floor(R()*4)]));
+  g.userData.legs=legs; g.userData.phase=R()*6.28; g.scale.setScalar(0.85); return g;
+}
+function pathLen(pts){ const cum=[0]; for(let i=1;i<pts.length;i++) cum.push(cum[i-1]+pts[i].distanceTo(pts[i-1])); return cum; }
+function addMover(list, obj, pts, speed, opts={}){
+  if(pts.length<2) return null; const cum=pathLen(pts); const mv={obj, pts, cum, total:cum[cum.length-1], speed, t:(opts.t0||0), dir:1, wrap:!!opts.wrap, walker:!!opts.walker, phase:Math.random()*6.28};
+  list.push(mv); placeMover(mv, 0); return mv;
+}
+function placeMover(mv, dt){
+  mv.t += mv.speed*mv.dir*dt;
+  if(mv.wrap){ mv.t = ((mv.t % mv.total)+mv.total)%mv.total; }
+  else { if(mv.t>=mv.total){ mv.t=mv.total; mv.dir=-1; } else if(mv.t<=0){ mv.t=0; mv.dir=1; } }
+  const {pts,cum}=mv; let i=1; while(i<cum.length-1 && cum[i]<mv.t) i++;
+  const a=pts[i-1], b=pts[i], seg=cum[i]-cum[i-1]; const f= seg>0? (mv.t-cum[i-1])/seg : 0;
+  const o=mv.obj; o.position.lerpVectors(a,b,Math.min(1,Math.max(0,f)));
+  const dx=(b.x-a.x)*mv.dir, dz=(b.z-a.z)*mv.dir; if(dx!==0||dz!==0) o.rotation.y=Math.atan2(-dz,dx);
+  if(mv.walker){ const ph=mv.phase + mv.t*6; o.position.y=Math.abs(Math.sin(ph))*0.08; const legs=o.userData.legs; if(legs){ legs[0].rotation.z=Math.sin(ph)*0.55; legs[1].rotation.z=-Math.sin(ph)*0.55; } }
+}
+
+/* ---------- reference layout of the uptown campus ---------- */
+/* Coordinates: x = m along St. Charles toward Loyola (downtown), measured from Gibson Hall's center; z = -m from the St. Charles sidewalk into campus. */
+const S = PAL;
+const LAYOUT = {
+  meta:{ title:'Tulane University uptown campus — reference layout', units:'meters', origin:'Gibson Hall front, St. Charles Ave sidewalk', axes:'x toward downtown (Loyola), z into campus is negative', accuracy:'Reconstructed from campus maps; positions ±20 m, footprints estimated. Load OSM footprints for survey accuracy.' },
+  streets:{ stCharlesSidewalk:0, freret:330, willow:640, claiborne:1400, broadway:-390, audubonPlace:250, benWeiner:200, mcalister:0, drill:-300, newcombPlace:140, rearStreets:[820,940,1060,1180,1300] },
+  buildings:[
+    // St. Charles frontage
+    {name:'Gibson Hall', u:0, v:36, w:90, d:26, h:15, color:S.stone, roof:{h:7,color:S.roofRed}, tower:{w:12,d:12,h:27,roofH:6,dz:-4}, year:1894, major:true, note:'Richardsonian Romanesque; oldest building on campus. Admissions, President\'s office.'},
+    {name:'Tilton Memorial Hall', u:-92, v:38, w:52, d:34, h:14, color:S.stone, roof:{h:6,color:S.roofRed}, year:1902, note:'Amistad Research Center, Murphy Institute'},
+    {name:'Dinwiddie Hall', u:92, v:38, w:52, d:34, h:16, color:S.stone2, roof:{h:6,color:S.roofRed}, year:1923, note:'Anthropology, Middle American Research Institute'},
+    {name:'Richardson Memorial Hall', u:178, v:44, w:58, d:38, h:16, color:'#c6b59d', roof:{h:6,color:'#7c5a4a'}, year:1908, major:true, note:'School of Architecture'},
+    {name:'President\'s House (2 Audubon Place)', u:228, v:34, w:24, d:20, h:9, color:S.white, roof:{h:5,color:S.roofGray,steps:2}, year:1917},
+    // Academic (Gibson) Quad ring
+    {name:'Norman Mayer Building', u:-122, v:112, w:40, d:72, h:13, color:'#c9a985', door:'right', note:'English, Political Science, Gender & Sexuality Studies'},
+    {name:'F. Edward Hébert Hall', u:118, v:100, w:36, d:58, h:15, color:S.brick, door:'left', note:'History, Honors, Altman Program'},
+    {name:'Richardson Building', u:118, v:178, w:36, d:50, h:12, color:'#cdb79b', door:'left', note:'Academic Advising'},
+    {name:'Robert C. Cudd Hall', u:-118, v:194, w:36, d:50, h:12, color:'#d2c1a3', door:'right', note:'Newcomb-Tulane College'},
+    {name:'Stanley Thomas Hall', u:-50, v:275, w:76, d:38, h:16, color:'#cbb59a', door:'front', note:'Computer Science'},
+    {name:'Social Work Building (former)', u:40, v:278, w:50, d:34, h:12, color:'#d8c6a8'},
+    // Science cluster (downtown side of the front campus, toward Audubon Place)
+    {name:'Lindy Boggs Center', u:168, v:112, w:46, d:62, h:26, color:S.brick4, door:'left', major:true, note:'School of Science & Engineering'},
+    {name:'Israel Environmental Sciences Building', u:206, v:112, w:26, d:44, h:15, color:'#c9b8a2', door:'back'},
+    {name:'Alcee Fortier Hall', u:206, v:176, w:26, d:36, h:11, color:S.brick2, door:'back', note:'Center for Public Service'},
+    {name:'Science & Engineering Lab Complex', u:168, v:188, w:46, d:56, h:14, color:'#dccbb0', door:'left'},
+    {name:'Flower Hall', u:118, v:243, w:34, d:34, h:12, color:'#d9c7aa', door:'back'},
+    {name:'Walter E. Blessey Hall', u:168, v:246, w:46, d:32, h:11, color:'#e0d2ba', door:'back', note:'Earth & Environmental Sciences'},
+    {name:'Percival Stern Hall', u:178, v:292, w:90, d:46, h:20, color:S.beige, door:'back', year:1965, major:true, note:'Physics, Chemistry, Psychology, Neuroscience'},
+    {name:'Science & Engineering Facilities', u:206, v:250, w:22, d:30, h:8, color:S.gray, door:'back'},
+    // Newcomb campus (Broadway side)
+    {name:'Newcomb Hall', u:-250, v:100, w:82, d:28, h:15, color:S.brick3, roof:{h:5,color:S.roofGray}, trim:true, year:1918, major:true, note:'School of Liberal Arts'},
+    {name:'Josephine Louise House', u:-352, v:60, w:30, d:70, h:13, color:S.brick3, roof:{h:5,color:S.roofGray,steps:2}, year:1918, door:'right', note:'Residence hall (JL)'},
+    {name:'Woldenberg Art Center & Newcomb Art Museum', u:-170, v:150, w:48, d:90, h:12, color:S.brick3, trim:true, door:'left'},
+    {name:'Caroline Richardson Building', u:-170, v:232, w:40, d:40, h:12, color:S.brick2, door:'left'},
+    {name:'Elleonora P. McWilliams Hall', u:-335, v:185, w:44, d:40, h:13, color:'#c78a6c', door:'right', year:2013, note:'Theatre & Dance'},
+    {name:'Brandt V. B. Dixon Hall', u:-335, v:250, w:60, d:50, h:13, color:S.brick, door:'right', extra:[{dx:12,dz:0,w:26,d:26,h:22,color:S.brick2,windows:false}], major:true, note:'Music; Dixon Hall & Lupin Theatre'},
+    {name:'Barbara Greenbaum House', u:-235, v:262, w:70, d:44, h:18, color:S.brick3, trim:true, year:2010, note:'Residence hall'},
+    {name:'Myra Clare Rogers Memorial Chapel', u:-300, v:292, w:16, d:30, h:8, color:'#efe6d3', roof:{h:7,color:S.roofDark,steps:3}, tower:{w:4,d:4,h:20,dz:-11,roofH:3}, windows:false},
+    // Audubon Place houses (context)
+    {name:'Audubon Place residence', u:230, v:84, w:18, d:16, h:8, color:'#f6e7c8', roof:{h:4,color:'#8f7a6b',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:230, v:134, w:18, d:16, h:8, color:'#cfd9f7', roof:{h:4,color:'#7a8bd6',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:230, v:184, w:18, d:16, h:8, color:'#fff3b0', roof:{h:4,color:'#c95a4b',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:230, v:234, w:18, d:16, h:8, color:'#cfeedd', roof:{h:4,color:'#6f9b6e',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:230, v:284, w:18, d:16, h:8, color:'#f7c5c5', roof:{h:4,color:'#8f7a6b',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:40, w:20, d:18, h:9, color:'#f9d9c4', roof:{h:4,color:'#a56b7c',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:90, w:20, d:18, h:9, color:'#e8d5f5', roof:{h:4,color:'#c9a26a',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:140, w:20, d:18, h:9, color:'#d6f0f5', roof:{h:4,color:'#c95a4b',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:190, w:20, d:18, h:9, color:'#ffe0b3', roof:{h:4,color:'#7a8bd6',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:240, w:20, d:18, h:9, color:'#f6e7c8', roof:{h:4,color:'#6f9b6e',steps:2}, ctx:true, windows:false},
+    {name:'Audubon Place residence', u:284, v:290, w:20, d:18, h:9, color:'#cfeedd', roof:{h:4,color:'#8f7a6b',steps:2}, ctx:true, windows:false},
+    // Loyola (context)
+    {name:'Loyola — Marquette Hall', u:430, v:44, w:70, d:30, h:18, color:S.brick2, roof:{h:6,color:S.roofGray}, tower:{w:14,d:14,h:32,roofH:5,roofColor:S.roofGray}, trim:true, ctx:true},
+    {name:'Loyola — Thomas Hall', u:352, v:76, w:30, d:64, h:14, color:S.brick2, roof:{h:5,color:S.roofGray}, ctx:true, door:'right'},
+    {name:'Loyola — Bobet Hall', u:508, v:76, w:30, d:64, h:14, color:S.brick2, roof:{h:5,color:S.roofGray}, ctx:true, door:'left'},
+    {name:'Loyola — Danna Student Center', u:430, v:168, w:64, d:44, h:14, color:'#cdb7a0', ctx:true, door:'front'},
+    {name:'Loyola — Buddig Hall', u:470, v:262, w:40, d:30, h:42, color:'#e5dccb', ctx:true, door:'front'},
+    {name:'Loyola — Biever Hall', u:530, v:262, w:40, d:30, h:42, color:'#e5dccb', ctx:true, door:'front'},
+    // Middle campus: Freret to Willow
+    {name:'Howard-Tilton Memorial Library', u:-240, v:386, w:84, d:84, h:24, color:S.beige, stack:[{w:84,d:84,h:8,color:S.glass}], door:'front', year:1968, major:true, note:'Main library; glass upper floors added 2013–16'},
+    {name:'Joseph Merrick Jones Hall', u:-160, v:372, w:52, d:50, h:13, color:S.brick, door:'front', year:1944, note:'Special Collections, Latin American Library'},
+    {name:'Devlin Fieldhouse', u:-70, v:380, w:80, d:62, h:16, color:S.brick, trim:true, door:'front', year:1933, major:true, note:'Basketball & volleyball; "Rose Bowl Gym"'},
+    {name:'Goldring/Woldenberg Hall I', u:45, v:386, w:50, d:66, h:18, color:S.brick, door:'left', year:1986, note:'Freeman School of Business'},
+    {name:'Goldring/Woldenberg Hall II', u:100, v:386, w:56, d:66, h:20, color:S.glass, trim:true, door:'front', year:2018, major:true, note:'A. B. Freeman School of Business'},
+    {name:'Monroe Hall', u:160, v:372, w:46, d:30, h:42, color:'#eee7d6', door:'front', major:true, note:'13-story residence hall'},
+    {name:'Sharp Hall', u:216, v:372, w:46, d:30, h:38, color:'#eae2cf', door:'front', note:'Residence hall'},
+    {name:'McAlister Auditorium', u:-75, v:462, w:56, d:62, h:16, color:'#e6dcc6', extra:[{dx:32,dz:0,w:8,d:52,h:16},{dx:38,dz:0,w:6,d:40,h:16},{dx:43,dz:0,w:5,d:26,h:16}], door:'right', year:1940, major:true},
+    {name:'The Commons', u:60, v:448, w:60, d:50, h:14, color:S.glass, extra:[{dx:22,dz:0,w:16,d:50,h:14,color:S.brick3}], door:'left', year:2019, major:true, note:'Dining hall; replaced Bruff Commons'},
+    {name:'Lavin-Bernick Center (LBC)', u:60, v:536, w:90, d:84, h:17, color:'#a8d6e8', extra:[{dx:-30,dz:0,w:30,d:84,h:17,color:'#c9b9a3'}], door:'left', year:2006, major:true, note:'Student center, bookstore, food court'},
+    {name:'Irby House', u:250, v:425, w:30, d:26, h:15, color:S.brick, door:'left', note:'Housing & Residence Life'},
+    {name:'Paterson Hall', u:250, v:470, w:30, d:40, h:15, color:S.brick2, door:'left'},
+    {name:'Phelps House', u:250, v:520, w:30, d:26, h:15, color:S.brick, door:'left'},
+    {name:'Lallage Feazel Wall Residential College', u:250, v:585, w:40, d:70, h:18, color:S.brick3, trim:true, door:'left', year:2008},
+    {name:'Butler House', u:195, v:440, w:40, d:50, h:26, color:S.brick2, door:'left'},
+    {name:'Katherine & William Mayer Residences', u:195, v:520, w:40, d:66, h:18, color:S.brick3, door:'left'},
+    {name:'Warren House', u:150, v:602, w:30, d:26, h:11, color:S.brick3, roof:{h:4,color:S.roofGray,steps:2}, door:'front'},
+    {name:'Weatherhead Hall', u:320, v:600, w:60, d:44, h:18, color:'#d9c9a8', door:'back', year:2010},
+    {name:'Weinmann Hall (Law School)', u:345, v:386, w:100, d:74, h:18, color:S.brick2, trim:true, door:'front', year:1995, major:true},
+    {name:'Law School Annex', u:425, v:372, w:40, d:40, h:12, color:'#d3c3a7', door:'front'},
+    {name:'Collins C. Diboll Complex & Garage', u:470, v:452, w:80, d:60, h:13, color:S.gray, windows:false, door:false, note:'Parking garage; Tulane Police; Career Services'},
+    {name:'Student Health Center', u:440, v:600, w:44, d:40, h:9, color:'#e0d3bb', door:'back'},
+    {name:'Willow Residences', u:-345, v:590, w:70, d:60, h:18, color:'#c8a77f', door:'back'},
+    {name:'Aron Residences', u:-255, v:590, w:60, d:50, h:12, color:'#d4c8a8', door:'back'},
+    {name:'Navy Building (NROTC)', u:-270, v:470, w:40, d:40, h:9, color:'#d7d0c0', door:'front'},
+    {name:'Newcomb Child Care Center (1305 Broadway)', u:-366, v:462, w:20, d:20, h:7, color:'#f6e7c8', roof:{h:4,color:'#c95a4b',steps:2}, windows:false, door:'left'},
+    {name:'Bea Field Alumni House (6319 Willow)', u:500, v:672, w:22, d:18, h:8, color:S.white, roof:{h:4,color:S.roofGray,steps:2}, windows:false, door:'front'},
+    {name:'Center for Global Education (6901 Willow)', u:-320, v:672, w:22, d:18, h:8, color:'#fff3b0', roof:{h:4,color:'#8f7a6b',steps:2}, windows:false, door:'front'},
+    // Athletics: Willow to Claiborne
+    {name:'Reily Student Recreation Center', u:-60, v:722, w:120, d:100, h:18, color:'#cdb894', door:'front', major:true, note:'Gym, pools, courts'},
+    {name:'Hertz Basketball Practice Facility', u:130, v:1030, w:60, d:80, h:12, color:'#cfcbc2', door:'left', year:2011},
+    {name:'James W. Wilson Jr. Athletic Center', u:130, v:1150, w:60, d:60, h:13, color:'#c9c5bb', door:'left', note:'Athletics offices'},
+    {name:'Sofio Baseball Pavilion', u:178, v:1180, w:22, d:40, h:8, color:'#d6d2c8', door:'left', windows:false},
+  ],
+  // neighbourhood context houses: [u, v, w, d]
+  contextHouses:[],
+};
+(function(){ const R=rnd(7); for(let k=0;k<16;k++){ LAYOUT.contextHouses.push([-432, 20+k*40, 18, 16]); } for(let k=0;k<11;k++){ LAYOUT.contextHouses.push([242, 900+k*46, 18, 16]); LAYOUT.contextHouses.push([284, 900+k*46, 18, 16]); } for(let k=0;k<16;k++){ LAYOUT.contextHouses.push([-432, 680+k*46, 18, 16]); }
+  for(const row of [795,845,915,965,1035,1085,1155,1205,1275,1325]) for(let u=-365; u<=(row<940?-85:-125); u+=40) LAYOUT.contextHouses.push([u,row,18,16]); })();
+
+function buildReference(root, layout=LAYOUT){
+  const C=new Content(root); const st=Object.assign({},LAYOUT.streets,layout.streets||{}); const W=(u,v)=>[u,-v]; // helper to convert (u,v) -> (x,z)
+  C.bounds={minX:-560, maxX:720, minZ:-1480, maxZ:320};
+  const R=rnd(42);
+  /* ground base */
+  const gb=new GeoBuf(); gb.box((C.bounds.minX+C.bounds.maxX)/2, -0.5, (C.bounds.minZ+C.bounds.maxZ)/2, C.bounds.maxX-C.bounds.minX, 1, C.bounds.maxZ-C.bounds.minZ);
+  const ground=gb.mesh(PAL.grass,{cast:false}); ground.name='ground'; root.add(ground);
+  // Audubon Park side: lagoon + jogging loop
+  C.patch(-260,160,320,260, PAL.water, 0.03, 0.05); C.patch(-300,185,-260,235,PAL.water,0.03,0.05); C.patch(320,190,380,240,PAL.water,0.03,0.05);
+  C.patch(-470,296,700,300,PAL.path,0.05,0.05); C.patch(-470,60,-466,300,PAL.path,0.05,0.05); C.patch(696,60,700,300,PAL.path,0.05,0.05);
+  /* St. Charles Avenue: two roadways, grass neutral ground with streetcar tracks */
+  const x0=-560, x1=720;
+  C.patch(x0,0,x1,4,PAL.sidewalk,0.07,0.07); C.patch(x0,44,x1,48,PAL.sidewalk,0.07,0.07);
+  C.patch(x0,4,x1,14,PAL.road,0.04,0.05); C.patch(x0,34,x1,44,PAL.road,0.04,0.05);
+  C.patch(x0,14,x1,34,PAL.grass2,0.07,0.08);
+  for(const zc of [28,20]) for(const off of [-0.75,0.75]) C.patch(x0, zc+off-0.1, x1, zc+off+0.1, '#6b6357', 0.13, 0.06);
+  for(let x=x0;x<x1;x+=8){ C.patch(x,8.8,x+3,9.2,PAL.dash,0.06,0.03); C.patch(x,38.8,x+3,39.2,PAL.dash,0.06,0.03); }
+  /* Freret, Willow, Claiborne (crossing the campus), Broadway, Audubon Place, Ben Weiner, McAlister, Drill Road, Newcomb Place */
+  const roadU=(v,w,x0_,x1_,dash=true)=>{ C.patch(x0_, -(v+w/2), x1_, -(v-w/2), PAL.road, 0.04, 0.05); C.patch(x0_, -(v+w/2)-3, x1_, -(v+w/2), PAL.sidewalk,0.07,0.07); C.patch(x0_, -(v-w/2), x1_, -(v-w/2)+3, PAL.sidewalk,0.07,0.07); if(dash) for(let x=x0_;x<x1_;x+=8) C.patch(x,-v-0.2,x+3,-v+0.2,PAL.dash,0.06,0.03); };
+  const roadV=(u,w,v0,v1,dash=true)=>{ C.patch(u-w/2, -v1, u+w/2, -v0, PAL.road, 0.04, 0.05); C.patch(u-w/2-3, -v1, u-w/2, -v0, PAL.sidewalk,0.07,0.07); C.patch(u+w/2, -v1, u+w/2+3, -v0, PAL.sidewalk,0.07,0.07); if(dash) for(let v=v0;v<v1;v+=8) C.patch(u-0.2,-(v+3),u+0.2,-v,PAL.dash,0.06,0.03); };
+  roadU(st.freret,10,x0,x1); roadU(st.willow,10,x0,x1);
+  C.patch(x0,-(st.claiborne+22),x1,-(st.claiborne+8),PAL.road,0.04,0.05); C.patch(x0,-(st.claiborne-8),x1,-(st.claiborne-22),PAL.road,0.04,0.05); C.patch(x0,-(st.claiborne+8),x1,-(st.claiborne-8),PAL.grass2,0.07,0.08);
+  for(let x=x0;x<x1;x+=8){ C.patch(x,-(st.claiborne+15.2),x+3,-(st.claiborne+14.8),PAL.dash,0.06,0.03); C.patch(x,-(st.claiborne-14.8),x+3,-(st.claiborne-15.2),PAL.dash,0.06,0.03); }
+  roadV(st.broadway,10,-48,st.claiborne+22); roadV(st.audubonPlace,8,-4,st.freret-5,false); roadV(st.benWeiner,6,st.willow+5,st.claiborne-8,false);
+  C.patch(-6,-(st.willow-5),6,-(st.freret+5),PAL.plaza,0.09,0.05); C.patch(-14,-560,14,-470,PAL.plaza,0.09,0.05); // McAlister Place pedestrian mall
+  roadV(st.drill,6,st.freret+5,st.willow-5,false);
+  C.patch(st.broadway+5,-(st.newcombPlace+3),-308,-(st.newcombPlace-3),PAL.road,0.04,0.05);
+  for(const v of (st.rearStreets||[])) roadU(v,8,st.broadway+5,-100,false); // neighborhood streets behind the athletics complex
+  // Audubon Place gate posts
+  { const g=new GeoBuf(); g.box(st.audubonPlace-6,2,-2,1.6,4,1.6); g.box(st.audubonPlace+6,2,-2,1.6,4,1.6); root.add(g.mesh(PAL.white)); }
+  /* Quads and paths */
+  const quadPaths=(u0,v0,u1,v1)=>{ C.patch(u0,-v1,u1,-v1+3,PAL.path,0.09,0.05); C.patch(u0,-v0-3,u1,-v0,PAL.path,0.09,0.05); C.patch(u0,-v1,u0+3,-v0,PAL.path,0.09,0.05); C.patch(u1-3,-v1,u1,-v0,PAL.path,0.09,0.05);
+    const cx=(u0+u1)/2, cz=-(v0+v1)/2, L=Math.hypot(u1-u0,v1-v0), a=Math.atan2(v1-v0,u1-u0); C.patchRot(cx,cz,L,2.6,a,PAL.path,0.09,0.05); C.patchRot(cx,cz,L,2.6,-a,PAL.path,0.09,0.05); };
+  quadPaths(-96,52,96,248); // Academic Quad
+  quadPaths(-306,118,-196,236); // Newcomb Quad
+  C.patch(14,-492,106,-476,PAL.grass2,0.06,0.04); C.patch(14,-494,106,-492,PAL.path,0.09,0.05); C.patch(14,-476,106,-474,PAL.path,0.09,0.05); // LBC quad
+  C.patch(-96,-(st.freret-6),96,-(st.freret-9),PAL.path,0.09,0.05);
+  C.patch(-380,-3,240,-6,PAL.path,0.09,0.05); // St. Charles walk inside campus
+  /* Fields */
+  C.patch(10,-900,190,-660,PAL.turf,0.06,0.05); for(const [a,b,c,d] of [[10,-900,190,-898],[10,-662,190,-660],[10,-900,12,-660],[188,-900,190,-660]]) C.patch(a,b,c,d,PAL.white,0.09,0.03);
+  C.patch(-60,-1222,60,-1140,PAL.turf,0.06,0.05); for(const [a,b,c,d] of [[-60,-1222,60,-1220],[-60,-1142,60,-1140],[-60,-1222,-58,-1140],[58,-1222,60,-1140]]) C.patch(a,b,c,d,PAL.white,0.09,0.03);
+  C.patch(215,-860,330,-700,PAL.lot,0.05,0.05); for(let v=705;v<855;v+=12) C.patch(222,-(v+0.3),323,-(v-0.3),PAL.white,0.08,0.03);
+  /* buildings */
+  for(const b of layout.buildings){ const [x,z]=W(b.u,b.v); const spec=Object.assign({},b,{x,z}); if(spec.tower&&spec.tower.dz!==undefined) spec.tower=Object.assign({},spec.tower,{dz:-spec.tower.dz}); if(spec.extra) spec.extra=spec.extra.map(e=>Object.assign({},e,{dz:-(e.dz||0)})); C.building(spec); }
+  /* context houses */
+  (layout.contextHouses||[]).forEach(([u,v,w,d],i)=>{ const [x,z]=W(u,v); C.building({name:'Neighborhood house', x,z,w,d,h:7.5, color:PAL.houses[i%PAL.houses.length], roof:{h:4,color:PAL.houseRoofs[i%PAL.houseRoofs.length],steps:2}, ctx:true, windows:false, door: u<0?'right':'left'}); });
+  /* Yulman Stadium */
+  {
+    const [cx,cz]=W(0,1045); const grp=new T.Group(); grp.name='Yulman Stadium'; grp.position.set(cx,0,cz);
+    C.patch(cx-25,cz-60,cx+25,cz+60,PAL.turf,0.06,0.05); for(let i=0;i<=12;i++){ const zz=cz-55+i*9.16; C.patch(cx-25,zz-0.25,cx+25,zz+0.25,PAL.white,0.09,0.03); } C.patch(cx-25,cz-60,cx+25,cz-55,PAL.tulaneGreen,0.07,0.04); C.patch(cx-25,cz+55,cx+25,cz+60,PAL.skyBlue,0.07,0.04);
+    const st_=new GeoBuf(); st_.box(-52,4,0,44,8,170); st_.box(-62,9,0,24,6,170); st_.box(-64,12,0,20,4,150); st_.box(-66,19,0,10,8,70); // west stands + press box
+    st_.box(52,5,0,44,10,170); st_.box(62,9,0,24,6,150); // east stands
+    st_.box(0,4,-95,60,8,20); st_.box(0,4,95,60,8,20);
+    const sm=st_.mesh('#c9cac5'); sm.userData.building=grp; grp.add(sm); C.pickables.push(sm);
+    const fac=new GeoBuf(); fac.box(75,8,0,3,16,176); grp.add(fac.mesh(PAL.zinc));
+    const stripe=new GeoBuf(); stripe.box(-52,8.6,0,45,0.6,171); stripe.box(52,10.6,0,45,0.6,171); grp.add(stripe.mesh(PAL.tulaneGreen));
+    const lights=new GeoBuf(); for(const [lx,lz] of [[-70,-80],[-70,80],[70,-80],[70,80]]){ lights.box(lx,18,lz,1.2,36,1.2); lights.box(lx,36,lz,6,3,1.5);} grp.add(lights.mesh('#5b5f66'));
+    root.add(grp); const rec={name:'Benson Field at Yulman Stadium', pos:new T.Vector3(cx,26,cz), grp, major:true, info:{name:'Benson Field at Yulman Stadium', w:150,d:190,h:24,year:2014,note:'30,000-seat football stadium; opened Sept. 6, 2014'}}; grp.userData.rec=rec; C.buildings.push(rec);
+  }
+  /* Turchin Stadium (baseball) */
+  {
+    const [cx,cz]=W(90,1300); const grp=new T.Group(); grp.name='Turchin Stadium'; grp.position.set(cx,0,cz);
+    C.patch(cx-80,cz-75,cx+80,cz+75,PAL.pitch,0.06,0.05); C.patchRot(cx+30,cz-30,60,60,Math.PI/4,PAL.dirt,0.08,0.04); C.patchRot(cx+30,cz-30,34,34,Math.PI/4,PAL.pitch,0.1,0.03);
+    const st_=new GeoBuf(); st_.box(60,4,-25,14,8,100,0); st_.box(30,4,-60,110,8,14,0); st_.box(66,10,-44,20,6,20); // stands along the lines + press box behind home plate
+    const sm=st_.mesh('#d1d1cb'); sm.userData.building=grp; grp.add(sm); C.pickables.push(sm);
+    const stripe=new GeoBuf(); stripe.box(60,8.6,-30,15,0.5,111); stripe.box(30,8.6,-60,111,0.5,15); grp.add(stripe.mesh(PAL.tulaneGreen));
+    const fence=new GeoBuf(); fence.box(-70,1.5,0,1,3,150); fence.box(0,1.5,70,150,3,1); grp.add(fence.mesh('#2f6b3a'));
+    const lights=new GeoBuf(); for(const [lx,lz] of [[-60,-60],[-60,60],[60,60],[70,-70]]){ lights.box(lx,15,lz,1.2,30,1.2); lights.box(lx,30,lz,5,3,1.5);} grp.add(lights.mesh('#5b5f66'));
+    root.add(grp); const rec={name:'Greer Field at Turchin Stadium', pos:new T.Vector3(cx,20,cz), grp, major:true, info:{name:'Greer Field at Turchin Stadium', w:160,d:150,h:16,year:1991,note:'Baseball; rebuilt 2008; 5,000 seats'}}; grp.userData.rec=rec; C.buildings.push(rec);
+  }
+  /* Trees: live oaks */
+  const oak=(u,v,s)=>{ const [x,z]=W(u,v); C.tree(x+ (R()-0.5)*2, z+(R()-0.5)*2, s*(0.9+R()*0.5), 0.9+R()*0.5, Math.floor(R()*4)); };
+  for(let u=-380;u<=240;u+=24) oak(u, 8, 1.3);
+  for(let u=-540;u<=700;u+=22) oak(u, -52, 1.2);
+  for(let i=0;i<90;i++) oak(-540+R()*1240, -70-R()*230, 1.4);
+  for(let v=60;v<=240;v+=22){ oak(-100,v,1.1); oak(100,v,1.1);} for(let v=118;v<=236;v+=24){ oak(-310,v,1.0); oak(-192,v,1.0);} 
+  for(let v=350;v<=630;v+=18){ oak(-14,v,1.0); oak(14,v,1.0);} for(let v=-20;v<=1380;v+=34) oak(-378,v,1.1);
+  for(let v=660;v<=900;v+=30){ oak(4,v,1.0); oak(192,v,1.0);} for(let u=-140;u<=200;u+=26) oak(u, 648, 0.9);
+  for(let u=-380;u<=560;u+=40) oak(u, 336, 0.8);
+  for(let u=-540;u<=700;u+=30){ oak(u, 1428, 1.0); oak(u, 1372, 0.9);} 
+  for(const [u,v] of [[-60,600],[-40,600],[120,600],[-170,470],[-140,500],[-200,520],[150,500],[150,470],[-120,300],[60,300],[260,300],[-60,130],[60,130],[-250,300],[-360,130]]) oak(u,v,1.2);
+  C.finish();
+  /* Movers */
+  const P=(u,v)=>new T.Vector3(u,0,-v);
+  const line=(u0,v0,u1,v1)=>[P(u0,v0),P(u1,v1)];
+  for(let i=0;i<2;i++){ const sc=makeStreetcar(); const pts = i===0? [new T.Vector3(-560,0,28),new T.Vector3(720,0,28)] : [new T.Vector3(720,0,20),new T.Vector3(-560,0,20)]; addMover(C.movers, sc, pts, 6.5, {wrap:true, t0: i*600}); }
+  const carLanes=[ [line(-560,-40,720,-40),3], [line(720,-8,-560,-8),3], [line(-560,st.freret-2.5,720,st.freret-2.5),2], [line(720,st.freret+2.5,-560,st.freret+2.5),2], [line(-560,st.willow-2.5,720,st.willow-2.5),1], [line(720,st.willow+2.5,-560,st.willow+2.5),1],
+    [line(st.broadway+2.5,-40,st.broadway+2.5,st.claiborne+20),1], [line(st.broadway-2.5,st.claiborne+20,st.broadway-2.5,-40),1], [line(-560,st.claiborne-15,720,st.claiborne-15),2], [line(720,st.claiborne+15,-560,st.claiborne+15),2], [line(st.benWeiner,st.willow+8,st.benWeiner,st.claiborne-10),1] ];
+  let ci=0; for(const [pts,n] of carLanes){ const L=pts[0].distanceTo(pts[1]); for(let k=0;k<n;k++){ const car=makeCar(PAL.cars[ci%PAL.cars.length]); ci++; addMover(C.movers, car, pts, 7+R()*4, {wrap:true, t0:(k+R()*0.6)*L/n}); } }
+  const walks=[ line(3,345,3,632), line(-3,632,-3,345), line(-92,56,92,244), line(92,56,-92,244), line(-380,-2,240,-2), line(-300,120,-200,234), line(20,462,100,462), line(-90,320,90,320), line(-14,650,-14,700), line(-240,340,-100,340), line(140,600,150,700) ];
+  walks.forEach((pts,i)=>{ const s=makeStudent(100+i); addMover(C.movers, s, pts, 1.2+R()*0.5, {t0:R()*pts[0].distanceTo(pts[1]), walker:true}); });
+  C.homeTarget=new T.Vector3(0,0,-170); C.title='Voxel campus · reference layout · 1 unit = 1 m';
+  return C;
+}
+
+/* ---------- GeoJSON (OpenStreetMap / Overpass) importer ---------- */
+function pointInRing(x,z,ring){ let inside=false; for(let i=0,j=ring.length-1;i<ring.length;j=i++){ const xi=ring[i][0], zi=ring[i][1], xj=ring[j][0], zj=ring[j][1]; if(((zi>z)!==(zj>z)) && (x < (xj-xi)*(z-zi)/(zj-zi)+xi)) inside=!inside; } return inside; }
+function ringArea(r){ let a=0; for(let i=0,j=r.length-1;i<r.length;j=i++) a+=(r[j][0]+r[i][0])*(r[j][1]-r[i][1]); return Math.abs(a/2); }
+/* rasterize polygon(s) into a grid; returns {g, minX, minZ, nx, nz, cells(Uint8Array)} */
+function rasterize(polys, g){
+  let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity; for(const rings of polys) for(const p of rings[0]){ if(p[0]<minX)minX=p[0]; if(p[0]>maxX)maxX=p[0]; if(p[1]<minZ)minZ=p[1]; if(p[1]>maxZ)maxZ=p[1]; }
+  const nx=Math.max(1,Math.ceil((maxX-minX)/g)), nz=Math.max(1,Math.ceil((maxZ-minZ)/g)); const cells=new Uint8Array(nx*nz);
+  for(let iz=0;iz<nz;iz++){ const z=minZ+(iz+0.5)*g; for(let ix=0;ix<nx;ix++){ const x=minX+(ix+0.5)*g; let inside=false; for(const rings of polys){ if(pointInRing(x,z,rings[0])){ let hole=false; for(let k=1;k<rings.length;k++) if(pointInRing(x,z,rings[k])){hole=true;break;} if(!hole){inside=true;break;} } } if(inside) cells[iz*nx+ix]=1; } }
+  return {g,minX,minZ,nx,nz,cells};
+}
+function erode(r){ const out=new Uint8Array(r.nx*r.nz); for(let iz=0;iz<r.nz;iz++) for(let ix=0;ix<r.nx;ix++){ let ok=r.cells[iz*r.nx+ix]===1; for(let dz=-1;dz<=1&&ok;dz++) for(let dx=-1;dx<=1&&ok;dx++){ const jx=ix+dx,jz=iz+dz; if(jx<0||jz<0||jx>=r.nx||jz>=r.nz||!r.cells[jz*r.nx+jx]) ok=false; } if(ok) out[iz*r.nx+ix]=1; } return Object.assign({},r,{cells:out}); }
+function rasterToBoxes(buf, r, y0, h){ let count=0; for(let iz=0;iz<r.nz;iz++){ let ix=0; while(ix<r.nx){ if(!r.cells[iz*r.nx+ix]){ix++;continue;} let jx=ix; while(jx<r.nx && r.cells[iz*r.nx+jx]) jx++; const x=r.minX+(ix+jx)/2*r.g, w=(jx-ix)*r.g, z=r.minZ+(iz+0.5)*r.g; buf.box(x,y0+h/2,z,w,h,r.g); count++; ix=jx; } } return count; }
+function cellCount(r){ let c=0; for(let i=0;i<r.cells.length;i++) c+=r.cells[i]; return c; }
+
+function buildFromGeoJSON(root, gj){
+  const C=new Content(root);
+  const feats = gj.type==='FeatureCollection' ? gj.features : (gj.type==='Feature' ? [gj] : []);
+  if(!feats.length) throw new Error('No features found in this GeoJSON.');
+  const tagsOf=f=>{ const p=f.properties||{}; const t=Object.assign({}, p.tags && typeof p.tags==='object' ? p.tags : p);
+    if(!t.name && p.names && p.names.primary) t.name=p.names.primary;                       // Overture Maps
+    if(!t.building && (p.subtype!==undefined || p.num_floors!==undefined || p.roof_shape!==undefined) && f.geometry && /Polygon/.test(f.geometry.type)) t.building = p.subtype==='residential' ? 'house' : (p.subtype||'yes');
+    if(t['building:levels']===undefined && p.num_floors) t['building:levels']=p.num_floors; if(!t['roof:shape'] && p.roof_shape) t['roof:shape']=p.roof_shape; return t; };
+  let minLon=Infinity,maxLon=-Infinity,minLat=Infinity,maxLat=-Infinity;
+  const walk=(coords,fn)=>{ if(typeof coords[0]==='number'){ fn(coords); } else coords.forEach(c=>walk(c,fn)); };
+  for(const f of feats){ if(!f.geometry) continue; walk(f.geometry.coordinates, ([lon,lat])=>{ if(lon<minLon)minLon=lon; if(lon>maxLon)maxLon=lon; if(lat<minLat)minLat=lat; if(lat>maxLat)maxLat=lat; }); }
+  const lat0=(minLat+maxLat)/2, lon0=(minLon+maxLon)/2, kx=111320*Math.cos(lat0*Math.PI/180), ky=110574;
+  // orient the scene so St. Charles Avenue runs left-to-right (fallback: north is away from the viewer)
+  let theta=Math.PI/2, best=0;
+  for(const f of feats){ const t=tagsOf(f); if(f.geometry && f.geometry.type==='LineString' && (t.highway||t.railway) && /charles/i.test(t.name||'')){ const c=f.geometry.coordinates; const a=c[0], b=c[c.length-1]; let dE=(b[0]-a[0])*kx, dN=(b[1]-a[1])*ky; const L=Math.hypot(dE,dN); if(L>best){ best=L; if(dE<0){dE=-dE;dN=-dN;} theta=Math.atan2(dE,dN); } } }
+  const A=[Math.sin(theta),Math.cos(theta)], Lk=[-Math.cos(theta),Math.sin(theta)];
+  const toXZ=([lon,lat])=>{ const E=(lon-lon0)*kx, N=(lat-lat0)*ky; return [E*A[0]+N*A[1], -(E*Lk[0]+N*Lk[1])]; };
+  const polysOf=geom=>{ if(geom.type==='Polygon') return [geom.coordinates.map(r=>r.map(toXZ))]; if(geom.type==='MultiPolygon') return geom.coordinates.map(poly=>poly.map(r=>r.map(toXZ))); return null; };
+  // ground
+  let bx0=Infinity,bx1=-Infinity,bz0=Infinity,bz1=-Infinity; for(const f of feats){ if(!f.geometry) continue; walk(f.geometry.coordinates, c=>{ const [x,z]=toXZ(c); if(x<bx0)bx0=x; if(x>bx1)bx1=x; if(z<bz0)bz0=z; if(z>bz1)bz1=z; }); }
+  const M=120; C.bounds={minX:bx0-M,maxX:bx1+M,minZ:bz0-M,maxZ:bz1+M};
+  const gb=new GeoBuf(); gb.box((bx0+bx1)/2,-0.5,(bz0+bz1)/2,bx1-bx0+2*M,1,bz1-bz0+2*M); const ground=gb.mesh(PAL.grass,{cast:false}); ground.name='ground'; root.add(ground);
+  const R=rnd(9);
+  const roads=new GeoBuf(), paths=new GeoBuf(), dashes=new GeoBuf(), rails=new GeoBuf(), ng=new GeoBuf(); const carWays=[], walkWays=[], tramWays=[];
+  const houseBufs=new Map(), houseRoofBufs=new Map();
+  const num=v=>{ if(v===undefined||v===null) return NaN; const n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?NaN:n; };
+  let nBuild=0, nNamed=0;
+  const parkPolys=[];
+  for(const f of feats){
+    const t=tagsOf(f); const g=f.geometry; if(!g) continue;
+    if(t.building && (g.type==='Polygon'||g.type==='MultiPolygon')){
+      const polys=polysOf(g); const outer=polys[0][0]; let area=0; for(const p of polys) area+=ringArea(p[0]); if(area<4) continue;
+      const name=t.name||''; const isHouse=/^(house|residential|detached|semidetached_house|terrace|bungalow|apartments|garage|shed|hut|roof)$/.test(t.building) && !name;
+      let h=num(t.height); if(isNaN(h)){ const lv=num(t['building:levels']); h = !isNaN(lv) ? lv*3.6+0.8 : (isHouse? 7.5 : ({church:13, cathedral:20, university:14, college:14, school:11, dormitory:16, stadium:18, parking:12, commercial:10, retail:8, hotel:20, office:14, hospital:18, industrial:9, warehouse:8, garage:4, shed:3, roof:4}[t.building]||10)); }
+      h=Math.max(3, Math.min(h, 120));
+      const grid = area>25000? 3 : 2; const ras=rasterize(polys, grid); if(!cellCount(ras)) continue;
+      const seed=hashStr(name||String(f.properties&&(f.properties.id||f.properties['@id'])||area));
+      let color = t['building:colour'] && /^#([0-9a-f]{6})$/i.test(t['building:colour']) ? t['building:colour'] : null;
+      const campusPal=[PAL.brick,PAL.brick2,PAL.brick3,PAL.stone,PAL.beige,'#cdb79b','#c9a985','#d8c6a8','#e0d3bb',PAL.glass,'#eee7d6'];
+      if(!color) color = isHouse? PAL.houses[seed%PAL.houses.length] : campusPal[seed%campusPal.length];
+      let cx=0,cz=0; for(const p of outer){cx+=p[0];cz+=p[1];} cx/=outer.length; cz/=outer.length; let maxZ=-Infinity; for(const p of outer) if(p[1]>maxZ) maxZ=p[1];
+      const pitched = isHouse || /gabled|hipped|pyramidal/.test(t['roof:shape']||'') || t.building==='church';
+      if(isHouse){
+        let b=houseBufs.get(color); if(!b){b=new GeoBuf(); houseBufs.set(color,b);} rasterToBoxes(b, ras, 0, h);
+        const rc=PAL.houseRoofs[seed%PAL.houseRoofs.length]; let rb=houseRoofBufs.get(rc); if(!rb){rb=new GeoBuf(); houseRoofBufs.set(rc,rb);} const e1=erode(ras); rasterToBoxes(rb,e1,h,2.2); const e2=erode(e1); rasterToBoxes(rb,e2,h+2.2,1.6);
+        nBuild++; continue;
+      }
+      const grp=new T.Group(); grp.name=name||t.building; grp.position.set(0,0,0);
+      const buf=new GeoBuf(); rasterToBoxes(buf, ras, 0, h); const m=buf.mesh(color,{name:name||t.building}); m.userData.building=grp; grp.add(m); C.pickables.push(m);
+      let top=h;
+      if(pitched){ const rb=new GeoBuf(); const e1=erode(ras); rasterToBoxes(rb,e1,h,2.4); const e2=erode(e1); rasterToBoxes(rb,e2,h+2.4,2.0); grp.add(rb.mesh(t.building==='church'?PAL.roofDark:PAL.roofRed)); top+=4.4; }
+      // windows on near-rectangular footprints
+      const bw=ras.nx*ras.g, bd=ras.nz*ras.g; if(cellCount(ras)*ras.g*ras.g > 0.72*bw*bd && bw>8 && bd>8) C.facadeWindows(ras.minX+bw/2, ras.minZ+bd/2, bw, bd, 0, h);
+      root.add(grp); nBuild++; if(name) nNamed++;
+      const rec={name:name||(t.building==='yes'?'Building':t.building), pos:new T.Vector3(cx,top+2.5,cz), grp, major: !!name && (area>1800 || /stadium|library|hall|center|centre|gibson|yulman|reily|commons/i.test(name)), ctx:!name, info:{name:name||t.building, w:Math.round(bw), d:Math.round(bd), h:Math.round(h), note:[t['building:levels']?t['building:levels']+' levels':'', t.amenity||'', t['addr:housenumber']?(t['addr:housenumber']+' '+(t['addr:street']||'')):''].filter(Boolean).join(' · ')}};
+      grp.userData.rec=rec; C.buildings.push(rec);
+      continue;
+    }
+    if(t.highway && g.type==='LineString'){
+      const pts=g.coordinates.map(toXZ); const hw=t.highway;
+      const width = {motorway:16,trunk:14,primary:13,secondary:11,tertiary:10,residential:8,unclassified:8,living_street:7,service:5,footway:3,path:2.6,pedestrian:5,cycleway:3,steps:2.5,track:3}[hw] || 4;
+      const isPath=/footway|path|pedestrian|cycleway|steps|track/.test(hw); const buf=isPath?paths:roads; const top=isPath?0.10:0.06;
+      for(let i=1;i<pts.length;i++){ const [x0,z0]=pts[i-1],[x1,z1]=pts[i]; const L=Math.hypot(x1-x0,z1-z0); if(L<0.1) continue; const a=Math.atan2(-(z1-z0),x1-x0); buf.box((x0+x1)/2, top/2, (z0+z1)/2, L, top, width, a); buf.box(x1, top/2, z1, width, top, width, a);
+        if(!isPath && !/service|living_street/.test(hw)) for(let s=4;s<L-2;s+=8){ const f=s/L; dashes.box(x0+(x1-x0)*f, 0.075, z0+(z1-z0)*f, 2.4, 0.03, 0.35, a); } }
+      if(pts.length>=2){ buf.box(pts[0][0], top/2, pts[0][1], width, top, width, 0); }
+      let len=0; for(let i=1;i<pts.length;i++) len+=Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]);
+      if(/primary|secondary|tertiary|residential|unclassified/.test(hw) && len>120) carWays.push({pts,len,width});
+      if(isPath && len>60) walkWays.push({pts,len});
+      continue;
+    }
+    if(t.railway==='tram' && g.type==='LineString'){
+      const pts=g.coordinates.map(toXZ); let len=0;
+      for(let i=1;i<pts.length;i++){ const [x0,z0]=pts[i-1],[x1,z1]=pts[i]; const L=Math.hypot(x1-x0,z1-z0); if(L<0.1) continue; len+=L; const a=Math.atan2(-(z1-z0),x1-x0); const nx=-(z1-z0)/L, nz=(x1-x0)/L;
+        ng.box((x0+x1)/2,0.05,(z0+z1)/2,L+3,0.10,6.5,a); for(const off of [-0.75,0.75]) rails.box((x0+x1)/2+nx*off, 0.14, (z0+z1)/2+nz*off, L+0.3, 0.08, 0.22, a); }
+      tramWays.push({pts,len}); continue;
+    }
+    if(g.type==='Polygon'||g.type==='MultiPolygon'){
+      const polys=polysOf(g); let color=null, top=0.05;
+      if(t.natural==='water'||t.water) { color=PAL.water; top=0.03; }
+      else if(t.amenity==='parking'||t.parking) { color=PAL.lot; top=0.05; }
+      else if(t.leisure==='pitch'||t.leisure==='track') { color=PAL.pitch; top=0.06; }
+      else if(t.leisure==='park'||t.leisure==='garden'||t.landuse==='grass'||t.leisure==='playground'||t.landuse==='recreation_ground'||t.leisure==='stadium'||t.leisure==='sports_centre'||t.leisure==='golf_course') { color=PAL.grass2; top=0.04; parkPolys.push(polys); }
+      else if(t.highway==='pedestrian'||t.place==='square') { color=PAL.plaza; top=0.09; }
+      if(color){ let b=C.patches.get(color); if(!b){b=new GeoBuf(); C.patches.set(color,b);} const ras=rasterize(polys, 3); rasterToBoxes(b, ras, top-0.05, 0.05); }
+      continue;
+    }
+    if(g.type==='Point' && t.natural==='tree'){ const [x,z]=toXZ(g.coordinates); C.tree(x,z,1.0+R()*0.6,0.9+R()*0.5,Math.floor(R()*4)); continue; }
+  }
+  for(const [hex,b] of houseBufs){ const m=b.mesh(hex,{name:'houses_'+hex.slice(1)}); root.add(m); }
+  for(const [hex,b] of houseRoofBufs){ const m=b.mesh(hex,{name:'house_roofs_'+hex.slice(1)}); root.add(m); }
+  if(!roads.empty){ const m=roads.mesh(PAL.road,{cast:false}); m.name='roads'; root.add(m); }
+  if(!paths.empty){ const m=paths.mesh(PAL.path,{cast:false}); m.name='paths'; root.add(m); }
+  if(!dashes.empty){ const m=dashes.mesh(PAL.dash,{cast:false}); m.name='lane_dashes'; root.add(m); }
+  if(!ng.empty){ const m=ng.mesh(PAL.grass2,{cast:false}); m.name='neutral_ground'; root.add(m); }
+  if(!rails.empty){ const m=rails.mesh('#6b6357',{cast:false}); m.name='rails'; root.add(m); }
+  // scatter a few oaks in parks when the data has no tree points
+  if(C.trees.length<20){ for(const polys of parkPolys){ const ras=rasterize(polys, 12); let n=0; for(let iz=0;iz<ras.nz&&n<60;iz++) for(let ix=0;ix<ras.nx&&n<60;ix++){ if(ras.cells[iz*ras.nx+ix] && R()<0.35){ C.tree(ras.minX+(ix+0.5)*12+(R()-0.5)*6, ras.minZ+(iz+0.5)*12+(R()-0.5)*6, 1.1+R()*0.6, 0.9+R()*0.5, Math.floor(R()*4)); n++; } } } }
+  C.finish();
+  // life
+  const P=([x,z])=>new T.Vector3(x,0,z);
+  const offsetPath=(pts,off)=>pts.map((p,i)=>{ const a=pts[Math.max(0,i-1)], b=pts[Math.min(pts.length-1,i+1)]; const dx=b[0]-a[0], dz=b[1]-a[1], L=Math.hypot(dx,dz)||1; return new T.Vector3(p[0]-dz/L*off, 0, p[1]+dx/L*off); });
+  carWays.sort((a,b)=>b.len-a.len).slice(0,16).forEach((w,i)=>{ const car=makeCar(PAL.cars[i%PAL.cars.length]); const pts = i%2? offsetPath(w.pts, w.width*0.25) : offsetPath(w.pts.slice().reverse(), w.width*0.25); addMover(C.movers, car, pts, 6+R()*4, {t0:R()*w.len}); });
+  tramWays.sort((a,b)=>b.len-a.len).slice(0,2).forEach((w,i)=>{ const sc=makeStreetcar(); addMover(C.movers, sc, w.pts.map(P), 6, {t0:R()*w.len}); });
+  walkWays.sort((a,b)=>b.len-a.len).slice(0,14).forEach((w,i)=>{ const s=makeStudent(200+i); addMover(C.movers, s, w.pts.map(P), 1.2+R()*0.5, {t0:R()*w.len, walker:true}); });
+  C.homeTarget=new T.Vector3((bx0+bx1)/2,0,(bz0+bz1)/2); C.title=`OpenStreetMap footprints · ${nBuild} buildings (${nNamed} named) · to scale`;
+  C.stats={buildings:nBuild, named:nNamed, roads:carWays.length, trams:tramWays.length};
+  return C;
+}
+
+/* ---------- OBJ export ---------- */
+function exportOBJ(root){
+  root.updateMatrixWorld(true);
+  const out=['# Tulane uptown campus — voxel model. Units: meters, Y up.','mtllib tulane_voxel_campus.mtl'], mtls=new Map(); let vOff=1, n=0;
+  const v=new T.Vector3(), m=new T.Matrix4(); const fmt=x=>Math.round(x*100)/100;
+  root.traverse(o=>{
+    if(!(o.isMesh||o.isInstancedMesh)) return; const geo=o.geometry, pos=geo.attributes.position, idx=geo.index; if(!pos) return;
+    const hex = o.material && o.material.color ? '#'+o.material.color.getHexString() : '#cccccc'; const key='m_'+hex.slice(1); mtls.set(key,hex);
+    const count=o.isInstancedMesh? o.count : 1; const oname=(o.name||(o.parent&&o.parent.name)||'part').replace(/\s+/g,'_');
+    out.push('o '+oname+'_'+(n++)); out.push('usemtl '+key);
+    for(let i=0;i<count;i++){
+      if(o.isInstancedMesh){ o.getMatrixAt(i,m); m.premultiply(o.matrixWorld); } else m.copy(o.matrixWorld);
+      for(let k=0;k<pos.count;k++){ v.fromBufferAttribute(pos,k).applyMatrix4(m); out.push('v '+fmt(v.x)+' '+fmt(v.y)+' '+fmt(v.z)); }
+      if(idx){ for(let k=0;k<idx.count;k+=3) out.push('f '+(vOff+idx.getX(k))+' '+(vOff+idx.getX(k+1))+' '+(vOff+idx.getX(k+2))); }
+      else { for(let k=0;k<pos.count;k+=3) out.push('f '+(vOff+k)+' '+(vOff+k+1)+' '+(vOff+k+2)); }
+      vOff+=pos.count;
+    }
+  });
+  const mtl=['# materials for tulane_voxel_campus.obj']; const c=new T.Color(); for(const [key,hex] of mtls){ c.set(hex); mtl.push('newmtl '+key, `Kd ${c.r.toFixed(4)} ${c.g.toFixed(4)} ${c.b.toFixed(4)}`, 'Ka 0 0 0', 'Ks 0 0 0', 'd 1', 'illum 1'); }
+  return {obj:out.join('\n'), mtl:mtl.join('\n')};
+}
+
+const API={buildReference, buildFromGeoJSON, exportOBJ, LAYOUT, Content, GeoBuf};
+if(HEADLESS){ if(typeof module!=='undefined') module.exports=API; }
+else { window.__tulane=API; }
+
+/* ---------- app (browser only) ---------- */
+if(!HEADLESS){ (function(){
+  const $=id=>document.getElementById(id);
+  const canvas=$('c'); const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const renderer=new T.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=T.PCFSoftShadowMap;
+  const scene=new T.Scene(); scene.background=new T.Color('#d7ecf6');
+  const camera=new T.OrthographicCamera(-1,1,1,-1,1,7000);
+  const hemi=new T.HemisphereLight('#ffffff','#a9c48f',0.62); scene.add(hemi);
+  const sun=new T.DirectionalLight('#fff6e6',0.95); sun.castShadow=true; const small=Math.min(window.innerWidth,window.innerHeight)<700; sun.shadow.mapSize.set(small?2048:4096, small?2048:4096); sun.shadow.bias=-0.0006; sun.shadow.normalBias=0.6; scene.add(sun); scene.add(sun.target);
+  const staticRoot=new T.Group(), dynRoot=new T.Group(); scene.add(staticRoot, dynRoot);
+  let content=null; let W=1,H=1;
+  const cam={target:new T.Vector3(0,0,-170), phi:0.55, el:35*Math.PI/180, viewSize:600, dist:2600, goal:null};
+  const raycaster=new T.Raycaster();
+
+  function disposeGroup(g){ const geos=new Set(); g.traverse(o=>{ if(o.geometry) geos.add(o.geometry); }); geos.forEach(x=>x.dispose()); while(g.children.length) g.remove(g.children[0]); }
+  function load(fn){ disposeGroup(staticRoot); disposeGroup(dynRoot); $('labels').innerHTML=''; content=fn(staticRoot); for(const mv of content.movers) dynRoot.add(mv.obj); buildLabels(); fillGoto(); $('subtitle').textContent=content.title; cam.target.copy(content.homeTarget); cam.viewSize=initialView(); cam.goal=null; updateCamera(); hideTip(); }
+  function initialView(){ const aspect=W/H; return Math.min(1600, Math.max(320, 760/aspect)); }
+
+  function buildLabels(){ const box=$('labels'); for(const rec of content.buildings){ const el=document.createElement('div'); el.className='lbl'+(rec.ctx?' ctx':''); el.textContent=rec.name; box.appendChild(el); rec.el=el; } }
+  function fillGoto(){ const sel=$('goto'); sel.innerHTML='<option value="">Go to…</option>'; const list=content.buildings.filter(b=>!b.ctx).map((b,i)=>({name:b.name,i:content.buildings.indexOf(b)})).sort((a,b)=>a.name.localeCompare(b.name)); for(const it of list){ const o=document.createElement('option'); o.value=it.i; o.textContent=it.name; sel.appendChild(o);} }
+
+  function resize(){ W=canvas.clientWidth||window.innerWidth; H=canvas.clientHeight||window.innerHeight; renderer.setSize(W,H,false); updateCamera(); }
+  function updateCamera(){
+    const c=Math.cos(cam.el), s=Math.sin(cam.el); const dir=new T.Vector3(-Math.sin(cam.phi)*c, s, Math.cos(cam.phi)*c);
+    camera.position.copy(cam.target).addScaledVector(dir, cam.dist); camera.lookAt(cam.target);
+    const aspect=W/H; camera.top=cam.viewSize/2; camera.bottom=-cam.viewSize/2; camera.left=-cam.viewSize*aspect/2; camera.right=cam.viewSize*aspect/2; camera.updateProjectionMatrix();
+    sun.position.copy(cam.target).add(new T.Vector3(520,800,260)); sun.target.position.copy(cam.target); sun.target.updateMatrixWorld();
+    const r=Math.max(300, cam.viewSize*0.85); const sc=sun.shadow.camera; sc.left=-r; sc.right=r; sc.top=r; sc.bottom=-r; sc.near=1; sc.far=3000; sc.updateProjectionMatrix();
+    // scale bar
+    const ppm=H/cam.viewSize; let meters=100; if(ppm*100>220) meters=50; if(ppm*100<70) meters=200; if(ppm*100<35) meters=500; $('scaleBar').style.width=(ppm*meters)+'px'; $('scaleText').textContent=meters+' m';
+  }
+  function groundAt(px,py){ raycaster.setFromCamera(new T.Vector2((px/W)*2-1, -(py/H)*2+1), camera); const r=raycaster.ray; const t=-r.origin.y/r.direction.y; return r.origin.clone().addScaledVector(r.direction,t); }
+  function zoomAt(f,px,py){ const before=groundAt(px,py); cam.viewSize=Math.min(2600, Math.max(60, cam.viewSize*f)); updateCamera(); const after=groundAt(px,py); cam.target.add(before.sub(after)); cam.goal=null; updateCamera(); }
+
+  /* pointer interaction */
+  const ptrs=new Map(); let downInfo=null, moved=false, prevPinch=null;
+  canvas.addEventListener('pointerdown',e=>{ canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,btn:e.button,shift:e.shiftKey}); downInfo={x:e.clientX,y:e.clientY,t:performance.now(),count:ptrs.size}; moved=false; prevPinch=null; cam.goal=null; $('hint').classList.add('gone'); canvas.focus(); });
+  canvas.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId)) return; const p=ptrs.get(e.pointerId);
+    if(ptrs.size===1){
+      const dx=e.clientX-p.x, dy=e.clientY-p.y; if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+      if(p.btn===2 || p.shift || e.altKey){ cam.phi += dx*0.006; updateCamera(); }
+      else { const a=groundAt(p.x,p.y), b=groundAt(e.clientX,e.clientY); cam.target.add(a.sub(b)); updateCamera(); }
+      p.x=e.clientX; p.y=e.clientY;
+    } else if(ptrs.size===2){
+      p.x=e.clientX; p.y=e.clientY; const [a,b]=[...ptrs.values()]; const dist=Math.hypot(a.x-b.x,a.y-b.y), ang=Math.atan2(b.y-a.y,b.x-a.x), mx=(a.x+b.x)/2, my=(a.y+b.y)/2; moved=true;
+      if(prevPinch){ zoomAt(prevPinch.dist/Math.max(1,dist), mx, my); cam.phi += (ang-prevPinch.ang); updateCamera(); const g0=groundAt(prevPinch.mx,prevPinch.my), g1=groundAt(mx,my); cam.target.add(g0.sub(g1)); updateCamera(); }
+      prevPinch={dist,ang,mx,my};
+    }
+  });
+  const endPtr=e=>{ if(ptrs.has(e.pointerId)) ptrs.delete(e.pointerId); if(ptrs.size<2) prevPinch=null;
+    if(ptrs.size===0 && downInfo && !moved && downInfo.count===1 && performance.now()-downInfo.t<600){ pick(e.clientX,e.clientY); } if(ptrs.size===0) downInfo=null; };
+  canvas.addEventListener('pointerup',endPtr); canvas.addEventListener('pointercancel',endPtr);
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+  canvas.addEventListener('wheel',e=>{ e.preventDefault(); const k = e.deltaMode===1? 16 : (e.deltaMode===2? 300 : 1); zoomAt(Math.exp(e.deltaY*k*0.0012), e.clientX, e.clientY); },{passive:false});
+  canvas.addEventListener('keydown',e=>{ const step=cam.viewSize*0.08; const c=Math.cos(cam.phi), s=Math.sin(cam.phi); const right=new T.Vector3(c,0,s), fwd=new T.Vector3(s,0,-c);
+    if(e.key==='ArrowLeft') cam.target.addScaledVector(right,-step); else if(e.key==='ArrowRight') cam.target.addScaledVector(right,step); else if(e.key==='ArrowUp') cam.target.addScaledVector(fwd,step); else if(e.key==='ArrowDown') cam.target.addScaledVector(fwd,-step);
+    else if(e.key==='+'||e.key==='=') zoomAt(0.8,W/2,H/2); else if(e.key==='-') zoomAt(1.25,W/2,H/2); else if(e.key==='q') cam.phi-=0.15; else if(e.key==='e') cam.phi+=0.15; else return; e.preventDefault(); cam.goal=null; updateCamera(); });
+
+  function pick(px,py){ raycaster.setFromCamera(new T.Vector2((px/W)*2-1, -(py/H)*2+1), camera); const hits=raycaster.intersectObjects(content.pickables,false); if(!hits.length){ hideTip(); return; }
+    const grp=hits[0].object.userData.building; const rec=grp&&grp.userData.rec; if(!rec){ hideTip(); return; } const i=rec.info||{}; const dims=[i.w&&i.d? `${i.w} × ${i.d} m footprint`:'', i.h? `≈ ${i.h} m tall`:''].filter(Boolean).join(' · ');
+    const tip=$('tip'); tip.innerHTML=`<b>${rec.name}</b>${dims?dims:''}${i.year?`<small>Built ${i.year}</small>`:''}${i.note?`<small>${i.note}</small>`:''}${rec.ctx?'<small>Context only — not part of the campus model</small>':''}`; tip.hidden=false; tip.style.left=px+'px'; tip.style.top=(py-14)+'px'; }
+  function hideTip(){ $('tip').hidden=true; }
+
+  /* dock */
+  let showLabels=true, life=!reduced;
+  $('zoomIn').onclick=()=>zoomAt(0.75,W/2,H/2); $('zoomOut').onclick=()=>zoomAt(1.33,W/2,H/2);
+  $('rotate').onclick=()=>{ cam.goal=null; cam.phiGoal=(cam.phiGoal===undefined?cam.phi:cam.phiGoal)+Math.PI/4; };
+  $('reset').onclick=()=>{ cam.goal=content.homeTarget.clone(); cam.viewGoal=initialView(); cam.phiGoal=0.55; };
+  $('labelsBtn').onclick=e=>{ showLabels=!showLabels; e.currentTarget.classList.toggle('on',showLabels); if(!showLabels) content.buildings.forEach(b=>b.el&&b.el.classList.remove('on')); };
+  $('trafficBtn').onclick=e=>{ life=!life; e.currentTarget.classList.toggle('on',life); dynRoot.visible=life; };
+  $('trafficBtn').classList.toggle('on',life); dynRoot.visible=life;
+  $('goto').onchange=e=>{ if(e.target.value==='') return; const rec=content.buildings[+e.target.value]; if(rec){ cam.goal=new T.Vector3(rec.pos.x,0,rec.pos.z); cam.viewGoal=Math.min(cam.viewSize, 260); setTimeout(()=>{ const v=rec.pos.clone().project(camera); pick((v.x+1)/2*W, (1-v.y)/2*H+30); },900); } e.target.value=''; };
+  $('more').onclick=()=>{ $('sheet').hidden=false; }; $('closeSheet').onclick=()=>{ $('sheet').hidden=true; };
+  $('copyQuery').onclick=async()=>{ try{ await navigator.clipboard.writeText($('query').textContent); $('copyStatus').textContent='Copied.'; }catch(err){ const r=document.createRange(); r.selectNodeContents($('query')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('copyStatus').textContent='Selected — press copy.'; } };
+  function loadText(text){ let data; try{ data=JSON.parse(text); }catch(err){ $('loadStatus').textContent='Not valid JSON.'; return; }
+    try{ if(data && data.buildings && data.streets){ load(r=>buildReference(r,data)); $('loadStatus').textContent=`Loaded layout: ${data.buildings.length} buildings.`; }
+      else { load(r=>buildFromGeoJSON(r,data)); const s=content.stats||{}; $('loadStatus').textContent=`Loaded ${s.buildings} footprints (${s.named} named), ${s.roads} roads with traffic, ${s.trams} streetcar lines.`; $('sheet').hidden=true; } }
+    catch(err){ $('loadStatus').textContent='Could not build from this data: '+err.message; console.error(err); } }
+  $('file').onchange=e=>{ const f=e.target.files[0]; if(!f) return; $('loadStatus').textContent='Reading '+f.name+'…'; f.text().then(loadText); };
+  $('loadPaste').onclick=()=>loadText($('paste').value);
+  $('restore').onclick=()=>{ load(buildReference); $('loadStatus').textContent='Reference layout restored.'; };
+  function download(name,text,type){ const b=new Blob([text],{type:type||'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1500); }
+  $('exportObj').onclick=()=>{ $('exportStatus').textContent='Building OBJ…'; setTimeout(()=>{ try{ const {obj,mtl}=exportOBJ(staticRoot); download('tulane_voxel_campus.obj',obj,'model/obj'); setTimeout(()=>download('tulane_voxel_campus.mtl',mtl,'model/mtl'),400); $('exportStatus').textContent=`Exported (${(obj.length/1048576).toFixed(1)} MB).`; }catch(err){ $('exportStatus').textContent='Export failed: '+err.message; } },30); };
+  $('exportJson').onclick=()=>{ download('tulane_layout.json', JSON.stringify(LAYOUT,null,1), 'application/json'); $('exportStatus').textContent='Layout JSON downloaded — edit numbers, paste it back above to rebuild.'; };
+
+  /* labels */
+  const tmp=new T.Vector3();
+  function updateLabels(){ if(!content) return; const all = cam.viewSize<560; for(const rec of content.buildings){ const el=rec.el; if(!el) continue; if(!showLabels || !(all || rec.major) || (rec.ctx && cam.viewSize>300)){ el.classList.remove('on'); continue; } tmp.copy(rec.pos).project(camera); if(tmp.z>1||tmp.x<-1.1||tmp.x>1.1||tmp.y<-1.1||tmp.y>1.1){ el.classList.remove('on'); continue; } el.classList.add('on'); el.style.transform=`translate(${((tmp.x+1)/2*W).toFixed(1)}px, ${((1-tmp.y)/2*H).toFixed(1)}px) translate(-50%,-100%)`; } }
+
+  /* loop */
+  let last=performance.now();
+  function frame(now){ requestAnimationFrame(frame); const dt=Math.min(0.05,(now-last)/1000); last=now;
+    if(cam.goal){ cam.target.lerp(cam.goal, 0.12); if(cam.viewGoal) cam.viewSize += (cam.viewGoal-cam.viewSize)*0.12; if(cam.target.distanceTo(cam.goal)<0.5 && (!cam.viewGoal || Math.abs(cam.viewGoal-cam.viewSize)<0.5)){ cam.target.copy(cam.goal); cam.goal=null; cam.viewGoal=null; } updateCamera(); }
+    if(cam.phiGoal!==undefined){ const d=cam.phiGoal-cam.phi; if(Math.abs(d)<0.002){ cam.phi=cam.phiGoal; cam.phiGoal=undefined; } else cam.phi+=d*0.12; updateCamera(); }
+    if(life && content){ for(const mv of content.movers) placeMover(mv, dt); }
+    updateLabels(); renderer.render(scene,camera); }
+  window.addEventListener('resize',resize); resize(); load(buildReference); requestAnimationFrame(frame);
+  setTimeout(()=>$('hint').classList.add('gone'), 9000);
+})(); }
+</script>
+</body>
+</html>

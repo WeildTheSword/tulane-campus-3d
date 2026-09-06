@@ -1,0 +1,15 @@
+# downloaded survey data and built models are large; regenerate them with the pipeline (or track with Git LFS)
+data/*
+!data/.gitkeep
+!data/lidar/
+data/lidar/*
+!data/lidar/.gitkeep
+out/*
+!out/.gitkeep
+*.laz
+*.las
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+node_modules/
+.DS_Store
