@@ -68,6 +68,7 @@
       <dt>Buildings</dt><dd id="stBuild">—</dd>
       <dt>Trees</dt><dd id="stTrees">—</dd>
       <dt>Roof fit</dt><dd id="stFit">—</dd>
+      <dt>Paths</dt><dd id="stPaths">—</dd>
       <dt>Frame</dt><dd>St. Charles Ave along +X · 1 unit = 1 m</dd>
     </dl>
   </div>
@@ -79,7 +80,9 @@
       <button class="btn on" id="treesBtn" title="Show trees">Trees</button>
       <button class="btn on" id="namesBtn" title="Building names">Names</button>
       <button class="btn on" id="orthoBtn" title="Aerial photo on the ground">Photo</button>
+      <button class="btn on" id="pathsBtn" title="Walkways and roads draped on the scanned ground">Paths</button>
       <button class="btn" id="fitBtn" title="Tint buildings by how well the mesh fits the scan">Fit</button>
+      <button class="btn on" id="facadeBtn" title="Procedural facades from photo-derived specs">Facade</button>
     </div>
     <div class="row">
       <button class="btn" id="sunBtn" title="Move the sun"><span class="k">☀</span></button>
@@ -92,9 +95,11 @@
 
 <script type="text/plain" id="glb-buildings">__BUILDINGS_B64__</script>
 <script type="text/plain" id="glb-terrain">__TERRAIN_B64__</script>
+<script type="text/plain" id="glb-paths">__PATHS_B64__</script>
 <img id="ortho" hidden alt="" src="data:image/jpeg;base64,__ORTHO_B64__">
 <script type="application/json" id="trees-json">__TREES_JSON__</script>
 <script type="application/json" id="meta-json">__META_JSON__</script>
+<script type="application/json" id="facades-json">__FACADES_JSON__</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -105,6 +110,7 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const meta=JSON.parse($('meta-json').textContent||'{}');
   const treesData=JSON.parse($('trees-json').textContent||'[]');
+  const facades=JSON.parse($('facades-json').textContent||'{}'); const normName=n=>(n||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   if(meta.imagery) $('stImagery').textContent=meta.imagery;
   const setLoad=(msg,frac)=>{ $('loadMsg').textContent=msg; $('loadBar').style.width=Math.round(frac*100)+'%'; };
 
@@ -133,7 +139,9 @@
   function addBuildings(sc){
     buildingsGroup=sc; const box=new T.Box3();
     sc.traverse(o=>{ if(!o.isMesh) return;
-      o.material=new T.MeshStandardMaterial({vertexColors:!!o.geometry.attributes.color, color:0xffffff, roughness:0.86, metalness:0.0, flatShading:true});
+      const ud0=o.userData||{}; const spec=ud0.label?facades[normName(ud0.label)]:null;
+      o.material=spec?facadeMaterial(spec, ud0.phi, ud0.base):new T.MeshStandardMaterial({vertexColors:!!o.geometry.attributes.color, color:0xffffff, roughness:0.86, metalness:0.0, flatShading:true});
+      if(spec) o.userData.facade=spec.name;
       if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
       o.castShadow=true; o.receiveShadow=true;
       addFitColors(o);
@@ -146,6 +154,55 @@
     if(fitVals.length){ const s=[...fitVals].sort((a,b)=>a-b); const med=s[Math.floor(s.length/2)], p90=s[Math.floor(s.length*0.9)]; $('stFit').textContent=`median ${med.toFixed(2)} m · 90th pct ${p90.toFixed(2)} m · ${fitVals.length.toLocaleString()} buildings`; }
     return total; }
 
+  /* procedural facades: for a named building with a photo-derived spec, walls are painted in the fragment shader from world
+     position (u along the facade, v above ground) — storeys, piers, window cells, ground-floor storefront, terrace, crown —
+     while roofs keep their orthophoto vertex colours. Units are metres (the node scale sits inside modelMatrix). */
+  const facadeMats=[]; let pathsGroup=null;
+  const FACADE_UNIFORMS=`uniform float uFacade, uPhi, uBase, uModule, uPier, uPitch, uWinW, uWinH, uPlinth, uGroundGlazing; uniform int uN, uTerrace, uCrownStart;
+uniform float uStoreys[8]; uniform vec3 uWall, uTrim, uGlass, uFrame, uGround, uCrown, uCrownGlass, uFascia; varying vec3 vWorldPos;`;
+  const FACADE_GLSL=`
+  if(uFacade>0.5){
+    vec3 nW=inverseTransformDirection(normal, viewMatrix);
+    if(abs(nW.y)<0.1){
+      vec2 t0=vec2(cos(uPhi),sin(uPhi)); vec2 t1=vec2(-t0.y,t0.x); vec2 nxz=normalize(nW.xz);
+      vec2 t=abs(dot(nxz,t0))<abs(dot(nxz,t1))?t0:t1;                 // the facade tangent is the axis most perpendicular to this wall's normal
+      float u=dot(vWorldPos.xz,t); float v=vWorldPos.y-uBase;
+      float y0=0.0; int k=0; float sh=uStoreys[0]; bool found=false;
+      for(int i=0;i<8;i++){ if(i>=uN) break; float e=y0+uStoreys[i]; if(v<e){ k=i; sh=uStoreys[i]; found=true; break; } y0=e; k=i; sh=uStoreys[i]; }
+      if(!found){ y0-=sh; }                                              // above the last storey: treat as part of it (parapet)
+      float vv=v-y0; float ub=mod(u,uModule); vec3 col=uWall;
+      if(k==0){                                                          // ground floor: plinth, piers, recessed storefront under a trim strip
+        if(vv<uPlinth || ub<uPier) col=uWall; else if(vv>sh-0.35) col=uTrim; else col=(uGroundGlazing>0.5)?uGround:uWall;
+      } else if(k>=uCrownStart && uCrownStart>0){                        // crown / later addition: light panel with recessed dark bays
+        bool bay=(ub>0.5 && ub<uModule-0.5) && (vv>0.3 && vv<sh-0.3); col=bay?uCrownGlass:uCrown;
+      } else if(k==uTerrace){                                            // terrace floor: balustrade, deep dark glazing, pale fascia on top
+        col = vv<1.1 ? uWall : (vv>sh-0.7 ? uFascia : uGlass*0.8);
+      } else {                                                           // fin floors: window cells between structural piers
+        float up=mod(u,uPitch); float lo=(uPitch-uWinW)*0.5, hi=(uPitch+uWinW)*0.5;
+        bool win=(up>lo && up<hi) && (vv>0.35 && vv<0.35+uWinH);
+        if(ub<uPier) col=uWall;
+        else if(win){ bool fr=(up<lo+0.06 || up>hi-0.06 || vv<0.41 || vv>0.35+uWinH-0.06); col=fr?uFrame:uGlass; }
+        if(uTerrace>0 && k==uTerrace-1 && vv>sh-0.35) col=uTrim;          // band under the terrace slab
+      }
+      diffuseColor.rgb=col;
+    }
+  }`;
+  function facadeMaterial(spec, phi, base){
+    const c=h=>new T.Color(h).convertSRGBToLinear(); const st=(spec.storeys||[]).slice(0,8); while(st.length<8) st.push(4.0);
+    const m=new T.MeshStandardMaterial({vertexColors:true, color:0xffffff, roughness:0.86, metalness:0.0, flatShading:true});
+    m.onBeforeCompile=sh=>{
+      Object.assign(sh.uniforms,{uFacade:{value:1}, uPhi:{value:phi||0}, uBase:{value:base||0}, uN:{value:Math.min(8,(spec.storeys||[]).length||1)}, uStoreys:{value:st},
+        uWall:{value:c(spec.wall||'#c8c2b6')}, uTrim:{value:c(spec.trim||'#5a4437')}, uGlass:{value:c(spec.glass||'#383836')}, uFrame:{value:c(spec.frame||'#2f2a25')},
+        uGround:{value:c(spec.ground||spec.glass||'#4f463a')}, uCrown:{value:c(spec.crown||spec.wall||'#c4cad1')}, uCrownGlass:{value:c(spec.crown_glass||'#24272c')}, uFascia:{value:c(spec.fascia||'#e0dcd4')},
+        uModule:{value:spec.module||7.9}, uPier:{value:spec.pier||1.0}, uPitch:{value:spec.pitch||1.3}, uWinW:{value:spec.win_w||0.75}, uWinH:{value:spec.win_h||3.0}, uPlinth:{value:spec.plinth||0.6},
+        uGroundGlazing:{value:spec.ground_glazing?1:0}, uTerrace:{value:spec.terrace==null?-1:spec.terrace}, uCrownStart:{value:spec.crown_start==null?-1:spec.crown_start}});
+      sh.vertexShader=sh.vertexShader.replace('void main() {','varying vec3 vWorldPos;\nvoid main() {').replace('#include <begin_vertex>','#include <begin_vertex>\n vWorldPos=(modelMatrix*vec4(transformed,1.0)).xyz;');
+      sh.fragmentShader=sh.fragmentShader.replace('void main() {',FACADE_UNIFORMS+'\nvoid main() {').replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\n'+FACADE_GLSL);
+      m.userData.shader=sh; };
+    m.customProgramCacheKey=()=>'facade-v1'; facadeMats.push(m); return m; }
+  let facadeOn=true;
+  function setFacades(on){ facadeOn=on; for(const m of facadeMats){ if(m.userData.shader) m.userData.shader.uniforms.uFacade.value=(on&&!fitMode)?1:0; } $('facadeBtn').classList.toggle('on',on); }
+
   /* accuracy heatmap: a second colour attribute from each building's fit:rmse (metres), swapped in by the Fit button */
   const fitStops=[[0,0x2e7d4f],[0.25,0xd9c341],[0.5,0xd0541f],[1.0,0x7a1f1f]];
   function fitColor(r){ if(r==null||isNaN(r)) return new T.Color(0x9aa39c); for(let i=1;i<fitStops.length;i++){ if(r<=fitStops[i][0]){ const a=fitStops[i-1], b=fitStops[i]; return new T.Color(a[1]).lerp(new T.Color(b[1]), (r-a[0])/(b[0]-a[0])); } } return new T.Color(fitStops[fitStops.length-1][1]); }
@@ -155,7 +212,7 @@
     if(ud.ranges){ for(const [s,c,r] of ud.ranges){ paint(s,c,r); if(r!=null) fitVals.push(r); } } else { paint(0,n,ud.fit); if(ud.fit!=null) fitVals.push(ud.fit); }
     geo.setAttribute('fitColor', new T.BufferAttribute(arr,4,true)); geo.userData.baseColor=geo.attributes.color||null; }
   let fitMode=false;
-  function setFitMode(on){ fitMode=on; if(!buildingsGroup) return; buildingsGroup.traverse(o=>{ if(!o.isMesh) return; const geo=o.geometry; if(on) geo.setAttribute('color', geo.attributes.fitColor); else if(geo.userData.baseColor) geo.setAttribute('color', geo.userData.baseColor); o.material.vertexColors=true; o.material.needsUpdate=true; }); $('fitkey').hidden=!on; $('fitBtn').classList.toggle('on',on); }
+  function setFitMode(on){ fitMode=on; setFacades(facadeOn); if(!buildingsGroup) return; buildingsGroup.traverse(o=>{ if(!o.isMesh) return; const geo=o.geometry; if(on) geo.setAttribute('color', geo.attributes.fitColor); else if(geo.userData.baseColor) geo.setAttribute('color', geo.userData.baseColor); o.material.vertexColors=true; o.material.needsUpdate=true; }); $('fitkey').hidden=!on; $('fitBtn').classList.toggle('on',on); }
 
   function addTerrain(sc, img){
     orthoTex=new T.Texture(img); orthoTex.flipY=false; orthoTex.encoding=T.sRGBEncoding; orthoTex.wrapS=orthoTex.wrapT=T.ClampToEdgeWrapping;
@@ -163,6 +220,18 @@
     sc.traverse(o=>{ if(!o.isMesh) return; terrainMesh=o; if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
       o.material=new T.MeshStandardMaterial({map:orthoTex, color:0xffffff, roughness:1, metalness:0}); o.receiveShadow=true; });
     root.add(sc); }
+
+  function addPaths(sc){
+    pathsGroup=sc; let n=0;
+    sc.traverse(o=>{ if(!o.isMesh) return; n++;
+      o.material=new T.MeshStandardMaterial({vertexColors:!!o.geometry.attributes.color, color:0xffffff, roughness:0.95, metalness:0.0,
+        polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2});   // paths sit ~6 cm above the terrain; the offset stops z-fighting on slopes
+      if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+      o.receiveShadow=true; });
+    root.add(sc);
+    const p=meta.stats&&meta.stats.paths;
+    if(p) $('stPaths').textContent=`${(p.length_m/1000).toFixed(1)} km · ${(p.ped_m/1000).toFixed(1)} km on foot · ${p.w_ortho} widths measured from the photo`;
+    return n; }
 
   function addTrees(list){
     treesGroup=new T.Group();
@@ -195,7 +264,7 @@
   canvas.addEventListener('pointerup',e=>{ if(!downAt) return; const moved=Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt=null; if(moved>6) return; pick(e.clientX,e.clientY); });
   function pick(px,py){ if(!buildingsGroup) return; ray.setFromCamera(new T.Vector2(px/W*2-1, -(py/H)*2+1), camera); const hits=ray.intersectObject(buildingsGroup,true); if(!hits.length){ hideTip(); return; }
     const o=hits[0].object; const rec=named.find(n=>n.mesh===o); if(!rec){ hideTip(); return; }   // merged house meshes carry no per-building identity
-    const fr=o.userData&&o.userData.fit; const tip=$('tip'); tip.innerHTML=`<b>${rec.name}</b><small>${rec.h} m tall (LiDAR) · ${rec.w} × ${rec.d} m${fr!=null?` · fit ${fr.toFixed(2)} m RMSE`:''}</small>`; tip.hidden=false; tip.style.left=px+'px'; tip.style.top=(py-14)+'px'; }
+    const fr=o.userData&&o.userData.fit; const tip=$('tip'); tip.innerHTML=`<b>${rec.name}</b><small>${rec.h} m tall (LiDAR) · ${rec.w} × ${rec.d} m${fr!=null?` · fit ${fr.toFixed(2)} m RMSE`:''}${o.userData.facade?` · facade from photos`:''}</small>`; tip.hidden=false; tip.style.left=px+'px'; tip.style.top=(py-14)+'px'; }
   function hideTip(){ $('tip').hidden=true; }
 
   /* dock */
@@ -204,6 +273,8 @@
   $('namesBtn').onclick=e=>{ showNames=!showNames; e.currentTarget.classList.toggle('on',showNames); if(!showNames) named.forEach(n=>n.el.classList.remove('on')); };
   $('orthoBtn').onclick=e=>{ if(!terrainMesh) return; const on=!!terrainMesh.material.map; terrainMesh.material.map=on?null:orthoTex; terrainMesh.material.color.setHex(on?0x8a9a6a:0xffffff); terrainMesh.material.needsUpdate=true; e.currentTarget.classList.toggle('on',!on); };
   $('fitBtn').onclick=()=>setFitMode(!fitMode);
+  $('facadeBtn').onclick=()=>setFacades(!facadeOn);
+  $('pathsBtn').onclick=e=>{ if(!pathsGroup) return; pathsGroup.visible=!pathsGroup.visible; e.currentTarget.classList.toggle('on',pathsGroup.visible); };
   $('sunBtn').onclick=()=>{ sunAz+=Math.PI/3; const sz=bounds.getSize(new T.Vector3()); placeSun(Math.max(sz.x,sz.z)*0.52); };
   $('topBtn').onclick=topView; $('resetBtn').onclick=reset;
 
@@ -223,6 +294,8 @@
       const b=await parseGLB('glb-buildings','Unpacking building meshes…',0.15); addBuildings(b);
       const t=await parseGLB('glb-terrain','Reading the ground surface…',0.45);
       setLoad('Draping the aerial photo on the ground…',0.6); const img=$('ortho'); if(!(img.complete&&img.naturalWidth)) await new Promise((res,rej)=>{ img.onload=res; img.onerror=()=>rej(new Error('orthophoto image would not decode')); }); addTerrain(t, img);
+      const pb=$('glb-paths').textContent.trim();
+      if(pb){ setLoad('Laying the walkways on the ground…',0.72); const psc=await parseGLB('glb-paths','Laying the walkways on the ground…',0.72); addPaths(psc); }
       setLoad('Planting '+treesData.length.toLocaleString()+' trees from the canopy…',0.8); await new Promise(r=>setTimeout(r,20)); addTrees(treesData);
       frameScene(); setLoad('Ready',1); $('load').classList.add('gone'); frame(); setTimeout(()=>$('hint').classList.add('gone'), 8000);
     }catch(err){ console.error(err); $('loadMsg').textContent='Could not decode the survey at "'+$('loadMsg').textContent+'": '+(err&&err.message||err); }

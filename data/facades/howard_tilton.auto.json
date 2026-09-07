@@ -1,0 +1,567 @@
+{
+ "building": {
+  "name": "Howard Tilton Memorial Library"
+ },
+ "method": "deterministic (facade_extract.py): masks + Otsu split + CIELAB medians + autocorrelation rhythm; scale from the LiDAR storey height",
+ "photos_used": 23,
+ "photos_skipped": 1,
+ "lidar": {
+  "height_m": 28.4,
+  "height_max_m": 32.6,
+  "levels": 6,
+  "storey_h_m": 4.733333333333333,
+  "roof": "flat"
+ },
+ "render": {
+  "wall": "#aeaea7",
+  "glass": "#545350"
+ },
+ "consensus": {
+  "wall": {
+   "value": "#aeaea7",
+   "agreeing": 13,
+   "photos": 23
+  },
+  "wall_lit": {
+   "value": "#ced0cc",
+   "agreeing": 19,
+   "photos": 23
+  },
+  "wall_shade": {
+   "value": "#8f8f8b",
+   "agreeing": 18,
+   "photos": 23
+  },
+  "glass": {
+   "value": "#545350",
+   "agreeing": 11,
+   "photos": 23
+  }
+ },
+ "confidence": {
+  "wall": 0.8,
+  "wall_lit": 0.7,
+  "wall_shade": 0.6,
+  "window_pitch": 0.75,
+  "storey_h": 0.9,
+  "glass": 0.3,
+  "_glass_note": "LOW: the dark mode mixes glazing with shadowed recesses and no threshold separates them without knowing what a window is \u2014 validated against the judged Howard-Tilton spec at dE 11-12 either way. This is the one field where a vision pass still earns its cost."
+ },
+ "measured": {
+  "wall": "#aeaea7",
+  "wall_lit": "#ced0cc",
+  "wall_shade": "#8f8f8b",
+  "glass": "#545350",
+  "m_per_px": 0.043827160493827164,
+  "window_pitch_m": 1.27,
+  "storey_h_m": 4.73
+ },
+ "per_photo": [
+  {
+   "file": "FreretTulane27Dec07HTLibraryA.jpg",
+   "wall_px": 213969,
+   "frac": 0.9519986394557823,
+   "wall": "#e0dcd3",
+   "wall_lit": "#edeae3",
+   "wall_shade": "#aba79d",
+   "glass": "#242424",
+   "even": 10.5,
+   "refw": 93.5,
+   "storey_px": 180.0,
+   "storey_conf": 0.126,
+   "window_px": 57.0,
+   "window_conf": 0.32,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "FreretTulane27Dec07HTLibraryB.jpg",
+   "wall_px": 313252,
+   "frac": 0.8470312925170068,
+   "wall": "#aeafab",
+   "wall_lit": "#e5e6e1",
+   "wall_shade": "#8b8d89",
+   "glass": "#343838",
+   "even": 17.5,
+   "refw": 98.7,
+   "storey_px": 360.0,
+   "storey_conf": 0.119,
+   "window_px": 24.0,
+   "window_conf": 0.407,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Freret_Street_14th_Ward_New_Orleans_April_2019_05.jpg",
+   "wall_px": 428042,
+   "frac": 0.7347401360544218,
+   "wall": "#c1c2bd",
+   "wall_lit": "#e0dfd5",
+   "wall_shade": "#a2a4a3",
+   "glass": "#53524d",
+   "even": 11.1,
+   "refw": 94.9,
+   "storey_px": 449.0,
+   "storey_conf": 0.315,
+   "window_px": 23.0,
+   "window_conf": 0.309,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Freret_Street_14th_Ward_New_Orleans_April_2019_06.jpg",
+   "wall_px": 459378,
+   "frac": 0.7619727891156463,
+   "wall": "#c0c0bb",
+   "wall_lit": "#dfded4",
+   "wall_shade": "#a4a4a4",
+   "glass": "#53524d",
+   "even": 10.7,
+   "refw": 94.8,
+   "storey_px": 446.0,
+   "storey_conf": 0.323,
+   "window_px": 10.0,
+   "window_conf": 0.683,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_03.jpg",
+   "wall_px": 366701,
+   "frac": 0.9746795918367347,
+   "wall": "#dbdbd7",
+   "wall_lit": "#fafdfc",
+   "wall_shade": "#ada9a0",
+   "glass": "#504f4d",
+   "even": 18.9,
+   "refw": 99.8,
+   "storey_px": 511.0,
+   "storey_conf": 0.106,
+   "window_px": 21.0,
+   "window_conf": 0.459,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_04.jpg",
+   "wall_px": 650386,
+   "frac": 0.9667652359108782,
+   "wall": "#f2f1ee",
+   "wall_lit": "#ffffff",
+   "wall_shade": "#d8d0c0",
+   "glass": "#7d756d",
+   "even": 9.0,
+   "refw": 100.0,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 52.0,
+   "window_conf": 0.474,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    868
+   ],
+   "height_px": 866
+  },
+  {
+   "file": "Freret_Street_at_Newcomb_Place_Tulane_University_May_2026.jpg",
+   "wall_px": 188131,
+   "frac": 0.6762189683365541,
+   "wall": "#fdfeff",
+   "wall_lit": "#fdfeff",
+   "wall_shade": "#f7fafb",
+   "glass": "#929393",
+   "even": 0.7,
+   "refw": 99.6,
+   "storey_px": 46.0,
+   "storey_conf": 0.849,
+   "window_px": 81.0,
+   "window_conf": 0.29,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    957
+   ],
+   "height_px": 955
+  },
+  {
+   "file": "Howard-Tilton_Memorial_Library_-_Tulane_University_February_2026.jpg",
+   "wall_px": 214068,
+   "frac": 0.7689128770479253,
+   "wall": "#b3afb0",
+   "wall_lit": "#cfcdd0",
+   "wall_shade": "#989290",
+   "glass": "#50505a",
+   "even": 10.5,
+   "refw": 89.4,
+   "storey_px": 79.0,
+   "storey_conf": 0.462,
+   "window_px": 29.0,
+   "window_conf": 0.569,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    929
+   ],
+   "height_px": 927
+  },
+  {
+   "file": "Howard-Tilton_windows_at_night.jpg",
+   "wall_px": 44045,
+   "frac": 0.07534411404046597,
+   "wall": "#e3dfc3",
+   "wall_lit": "#f0efe2",
+   "wall_shade": "#cfc7a3",
+   "glass": "#040404",
+   "even": 6.6,
+   "refw": 97.0,
+   "storey_px": 15.0,
+   "storey_conf": 0.51,
+   "window_px": null,
+   "window_conf": 0.0,
+   "bbox_px": [
+    3,
+    233,
+    549,
+    623
+   ],
+   "height_px": 391
+  },
+  {
+   "file": "Howard_Tilton_8575330378_.jpg",
+   "wall_px": 460557,
+   "frac": 0.8915536289703851,
+   "wall": "#b7aebc",
+   "wall_lit": "#dad3e1",
+   "wall_shade": "#8c959c",
+   "glass": "#3f3b39",
+   "even": 12.8,
+   "refw": 95.6,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 33.0,
+   "window_conf": 0.509,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    927
+   ],
+   "height_px": 925
+  },
+  {
+   "file": "Howard_Tilton_Library_NOLA.jpg",
+   "wall_px": 227413,
+   "frac": 0.6197030934245298,
+   "wall": "#d7d9c8",
+   "wall_lit": "#f5f6e4",
+   "wall_shade": "#a7ada4",
+   "glass": "#797e79",
+   "even": 13.8,
+   "refw": 99.4,
+   "storey_px": 25.0,
+   "storey_conf": 0.61,
+   "window_px": 23.0,
+   "window_conf": 0.347,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    915
+   ],
+   "height_px": 913
+  },
+  {
+   "file": "Howard_Tilton_Library_Tulane_University_with_Huey_P._Long_Bridge_in_distance_2002.jpg",
+   "wall_px": 218019,
+   "frac": 0.9847328387290167,
+   "wall": "#face9f",
+   "wall_lit": "#ffdca4",
+   "wall_shade": "#e1b792",
+   "glass": "#463422",
+   "even": 5.0,
+   "refw": 90.3,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 16.0,
+   "window_conf": 0.697,
+   "bbox_px": [
+    3,
+    3,
+    1276,
+    830
+   ],
+   "height_px": 828
+  },
+  {
+   "file": "Newcomb_Blvd_New_Orleans_1st_Nov_2019_18.jpg",
+   "wall_px": 399775,
+   "frac": 0.8115775510204082,
+   "wall": "#c9cbc9",
+   "wall_lit": "#dee6e7",
+   "wall_shade": "#9ca3aa",
+   "glass": "#2c2e30",
+   "even": 9.7,
+   "refw": 95.9,
+   "storey_px": 256.0,
+   "storey_conf": 0.188,
+   "window_px": 32.0,
+   "window_conf": 0.695,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Newcomb_Blvd_New_Orleans_1st_Nov_2019_19.jpg",
+   "wall_px": 457556,
+   "frac": 0.809643537414966,
+   "wall": "#bbbbb8",
+   "wall_lit": "#d6d7d5",
+   "wall_shade": "#9399a3",
+   "glass": "#303131",
+   "even": 9.9,
+   "refw": 98.4,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 45.0,
+   "window_conf": 0.408,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Tulane80sNewcombTennis.jpg",
+   "wall_px": 496872,
+   "frac": 0.9884875,
+   "wall": "#8e9190",
+   "wall_lit": "#b6b9b8",
+   "wall_shade": "#808483",
+   "glass": "#565b5b",
+   "even": 7.7,
+   "refw": 82.1,
+   "storey_px": 118.0,
+   "storey_conf": 0.324,
+   "window_px": 15.0,
+   "window_conf": 0.277,
+   "bbox_px": [
+    3,
+    3,
+    1276,
+    871
+   ],
+   "height_px": 869
+  },
+  {
+   "file": "Tulane_U_Mch2013_HT_Library_Back.JPG",
+   "wall_px": 468559,
+   "frac": 0.8455761904761905,
+   "wall": "#afa8a0",
+   "wall_lit": "#dcdad5",
+   "wall_shade": "#9b9289",
+   "glass": "#555455",
+   "even": 12.2,
+   "refw": 94.9,
+   "storey_px": 519.0,
+   "storey_conf": 0.159,
+   "window_px": 198.0,
+   "window_conf": 0.226,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Tulane_University_Uptown_Campus_23_March_2023_-_01.jpg",
+   "wall_px": 623298,
+   "frac": 0.8254142857142858,
+   "wall": "#a9a79f",
+   "wall_lit": "#c1cbd2",
+   "wall_shade": "#949088",
+   "glass": "#41403c",
+   "even": 8.6,
+   "refw": 91.4,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": null,
+   "window_conf": 0.0,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Tulane_University_Uptown_New_Orleans_29th_March_2019_04.jpg",
+   "wall_px": 651614,
+   "frac": 0.8133795918367347,
+   "wall": "#a6a59f",
+   "wall_lit": "#cdd9e8",
+   "wall_shade": "#98958d",
+   "glass": "#5e5b54",
+   "even": 16.7,
+   "refw": 89.9,
+   "storey_px": 31.0,
+   "storey_conf": 0.413,
+   "window_px": 45.0,
+   "window_conf": 0.38,
+   "bbox_px": [
+    3,
+    3,
+    1046,
+    1396
+   ],
+   "height_px": 1394
+  },
+  {
+   "file": "Zimple_Audubon_Tulane_Library_Construction_Dec14.jpg",
+   "wall_px": 484827,
+   "frac": 0.9068367346938776,
+   "wall": "#e0e6eb",
+   "wall_lit": "#f7f7f8",
+   "wall_shade": "#b5b0a7",
+   "glass": "#4b4541",
+   "even": 9.3,
+   "refw": 99.7,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 59.0,
+   "window_conf": 0.117,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "Zimple_Street_New_Orleans.jpg",
+   "wall_px": 505859,
+   "frac": 0.9699727891156462,
+   "wall": "#c0c9d3",
+   "wall_lit": "#dde4ec",
+   "wall_shade": "#abb4bd",
+   "glass": "#66635f",
+   "even": 8.0,
+   "refw": 95.8,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 17.0,
+   "window_conf": 0.322,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    1046
+   ],
+   "height_px": 1044
+  },
+  {
+   "file": "mapillary_1230697741787771.jpg",
+   "wall_px": 315903,
+   "frac": 0.9853562364031907,
+   "wall": "#c0bcab",
+   "wall_lit": "#e7e2d0",
+   "wall_shade": "#979589",
+   "glass": "#525655",
+   "even": 15.6,
+   "refw": 95.5,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": null,
+   "window_conf": 0.0,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    784
+   ],
+   "height_px": 782
+  },
+  {
+   "file": "mapillary_1472902660755340.jpg",
+   "wall_px": 623052,
+   "frac": 0.9855565627266135,
+   "wall": "#a2a59c",
+   "wall_lit": "#b3b8ae",
+   "wall_shade": "#8b897d",
+   "glass": "#343333",
+   "even": 9.8,
+   "refw": 80.1,
+   "storey_px": 108.0,
+   "storey_conf": 0.295,
+   "window_px": null,
+   "window_conf": 0.0,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    784
+   ],
+   "height_px": 782
+  },
+  {
+   "file": "mapillary_29707564172191524.jpg",
+   "wall_px": 403203,
+   "frac": 0.9264158810732415,
+   "wall": "#cbc5b4",
+   "wall_lit": "#f5eed6",
+   "wall_shade": "#a0a29f",
+   "glass": "#585755",
+   "even": 17.0,
+   "refw": 98.1,
+   "storey_px": null,
+   "storey_conf": 0.0,
+   "window_px": 22.0,
+   "window_conf": 0.571,
+   "bbox_px": [
+    3,
+    3,
+    1396,
+    784
+   ],
+   "height_px": 782
+  }
+ ]
+}

@@ -1,0 +1,1607 @@
+{
+ "building": {
+  "name": "Howard-Tilton Memorial Library",
+  "address": "7001 Freret St, New Orleans, LA 70118",
+  "osm": "way/327443277",
+  "wikidata": "Q16466615",
+  "centroid_lonlat": [
+   -90.12224,
+   29.9399
+  ],
+  "footprint_m": {
+   "long_side": 87.0,
+   "short_side": 46.0,
+   "long_axis_bearing_deg": 30,
+   "faces": {
+    "SSW_46m": "Freret St frontage",
+    "ESE_87m": "campus / Newcomb Place side (main entrance, loggia)",
+    "NNE_46m": "Zimple St (rear)",
+    "WNW_87m": "Audubon St side"
+   }
+  }
+ },
+ "generated": "2026-09-07 by tulane-campus-3d facade-spec lane from Wikimedia Commons photos + 2025 LaDOTD 0.3 m ortho",
+ "sources": [
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/FreretTulane27Dec07HTLibraryA.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/FreretTulane27Dec07HTLibraryA.jpg.json",
+   "commons_title": "File:FreretTulane27Dec07HTLibraryA.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:FreretTulane27Dec07HTLibraryA.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2007-12-27",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "Freret St (SSW) frontage, oblique from the street, W end; 27 Dec 2007 (pre-addition), low winter sun",
+    "storeys_visible": 4,
+    "notes": "Raised ground floor of full-height bronze-tinted storefront glazing recessed ~1.5 m behind wide pale pilasters, precast planters on a ~1 m plinth; storeys 2-3 are a dense rhythm of projecting precast fins with narrow tall dark windows, each with a small DARK RED-BROWN sill/spandrel panel; storey 4 is a set-back terrace floor with squat precast balustrade and full-height glass under a deep flat roof slab (~2 m overhang, exposed beam ends). No addition yet.",
+    "quality": "sharp, sunlit, large oak shading the W end"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/FreretTulane27Dec07HTLibraryB.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/FreretTulane27Dec07HTLibraryB.jpg.json",
+   "commons_title": "File:FreretTulane27Dec07HTLibraryB.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:FreretTulane27Dec07HTLibraryB.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2007-12-27",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "Freret St, W end, through oaks; Dec 2007",
+    "storeys_visible": 4,
+    "notes": "Same original massing; confirms the deep roof overhang and terrace balustrade run the full length; iron fence along the sidewalk.",
+    "quality": "heavily occluded by trees"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_03.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_03.jpg.json",
+   "commons_title": "File:Freret Street, Tulane University Campus, New Orleans, 22 November 2021 - 03.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Freret_Street,_Tulane_University_Campus,_New_Orleans,_22_November_2021_-_03.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2021-11-22 15:42:16",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "Freret St frontage from the street, Nov 2021",
+    "storeys_visible": 3,
+    "notes": "Ground-floor glazing boarded/tan panels behind a sidewalk scaffold canopy (construction, transient); fins and red-brown soffit band visible.",
+    "quality": "backlit, low sun, scaffolding"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_04.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_Tulane_University_Campus_New_Orleans_22_November_2021_-_04.jpg.json",
+   "commons_title": "File:Freret Street, Tulane University Campus, New Orleans, 22 November 2021 - 04.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Freret_Street,_Tulane_University_Campus,_New_Orleans,_22_November_2021_-_04.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2021-11-22 15:42:18",
+   "pixels": [
+    1920,
+    1196
+   ],
+   "observation": {
+    "viewpoint": "Freret St frontage, oblique, Nov 2021",
+    "storeys_visible": 5,
+    "notes": "Clear view of fin rhythm on storeys 2-3, terrace balustrade on 4, and the flat light-grey panel flank of the addition above; ground floor behind scaffold with tan temporary panels.",
+    "quality": "strong backlight/flare, colour unreliable"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_14th_Ward_New_Orleans_April_2019_05.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_14th_Ward_New_Orleans_April_2019_05.jpg.json",
+   "commons_title": "File:Freret Street 14th Ward New Orleans April 2019 05.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Freret_Street_14th_Ward_New_Orleans_April_2019_05.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2019-04-11 13:06:32",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "S corner (Freret/Newcomb Pl) from Freret St, Apr 2019, sunlit",
+    "storeys_visible": 6,
+    "notes": "Best corner view: the 2-storey addition reads as a light blue-grey metal box; its Freret (SSW) face is FLAT panel with 4 narrow full-height slots; its ESE (campus/Newcomb Pl) face is a deep white-framed loggia grid with black recesses. Original roof slab projects as a cornice under the addition. Library name sign + ramp near the corner on the ESE side.",
+    "quality": "good, some sky reflection on panels"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_14th_Ward_New_Orleans_April_2019_06.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Freret_Street_14th_Ward_New_Orleans_April_2019_06.jpg.json",
+   "commons_title": "File:Freret Street 14th Ward New Orleans April 2019 06.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Freret_Street_14th_Ward_New_Orleans_April_2019_06.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2019-04-11 13:06:33",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "Same as 24, shifted",
+    "storeys_visible": 6,
+    "notes": "Confirms 24; bus stop and iron fence along Freret.",
+    "quality": "good"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard-Tilton_Memorial_Library_-_Tulane_University_February_2026.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard-Tilton_Memorial_Library_-_Tulane_University_February_2026.jpg.json",
+   "commons_title": "File:Howard-Tilton Memorial Library - Tulane University February 2026.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard-Tilton_Memorial_Library_-_Tulane_University_February_2026.jpg",
+   "licence": "CC BY 4.0",
+   "author": "ajay_suresh",
+   "date": "2026-02-05 12:53",
+   "pixels": [
+    1920,
+    1280
+   ],
+   "observation": {
+    "viewpoint": "ESE (campus/Newcomb Pl) flank, oblique from the NE corner, 5 Feb 2026 midday (GPS 29.94037,-90.12151)",
+    "storeys_visible": 6,
+    "notes": "Highest-quality photo (8172 px original). Loggia of ~11 deep bays: light-grey/white aluminium fins + fascia (fastener rows visible), black perforated side panels in the recesses, dark-tinted glazing with lit interior visible. Below: original pale precast fascia, terrace floor with balustrade, red-brown band under the terrace slab, fin floors, red-brown soffit strip above the dark ground-floor storefront, planters on a precast plinth. Entrance plaque/lettering near the far (Freret) end.",
+    "quality": "excellent, sunlit; tree occludes part of storeys 2-3"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard-Tilton_windows_at_night.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard-Tilton_windows_at_night.json",
+   "commons_title": "File:Howard-Tilton windows at night.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard-Tilton_windows_at_night.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Tulane Public Relations",
+   "date": "2011-01-13 21:02:15",
+   "pixels": [
+    1920,
+    1278
+   ],
+   "observation": {
+    "viewpoint": "Exterior at night looking IN through ground-floor glazing, Jan 2011",
+    "storeys_visible": 1,
+    "notes": "Glass reads clear at night (warm interior), thin dark mullions; effectively an interior view - low weight.",
+    "quality": "night, marginal"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_8575330378_.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_8575330378_.jpg.json",
+   "commons_title": "File:Howard Tilton (8575330378).jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard_Tilton_(8575330378).jpg",
+   "licence": "CC BY 2.0",
+   "author": "Tulane Public Relations",
+   "date": "2013-03-19 15:12",
+   "pixels": [
+    1920,
+    1277
+   ],
+   "observation": {
+    "viewpoint": "Freret/ESE facade behind azaleas, Mar 2013 (pre-addition), overcast-bright",
+    "storeys_visible": 4,
+    "notes": "Fins read pale grey; terrace balustrade and deep overhang visible; windows dark.",
+    "quality": "shallow DOF, building soft"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_Tulane_University_with_Huey_P._Long_Bridge_in_distance_2002.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_Tulane_University_with_Huey_P._Long_Bridge_in_distance_2002.json",
+   "commons_title": "File:Howard Tilton Library, Tulane University, with Huey P. Long Bridge in distance, 2002.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard_Tilton_Library,_Tulane_University,_with_Huey_P._Long_Bridge_in_distance,_2002.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Tulane Public Relations",
+   "date": "2002-12-02 17:57",
+   "pixels": [
+    1280,
+    834
+   ],
+   "observation": {
+    "viewpoint": "Top (terrace) floor from a rooftop to the S, Dec 2002 sunset",
+    "storeys_visible": 1,
+    "notes": "Original roof: flat slab with pale fascia, exposed beam ends, terrace balustrade of squat balusters, full-height glazing with beige curtains behind; rooftop mechanical units.",
+    "quality": "warm sunset cast"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_3641474690_.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_3641474690_.jpg.json",
+   "commons_title": "File:Howard Tilton Library (3641474690).jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard_Tilton_Library_(3641474690).jpg",
+   "licence": "CC BY 2.0",
+   "author": "Tulane Public Relations",
+   "date": "2002-07-23 08:09",
+   "pixels": [
+    1800,
+    1173
+   ],
+   "observation": {
+    "viewpoint": "Behind a live oak, Jul 2002",
+    "storeys_visible": 4,
+    "notes": "Confirms fin rhythm, warm-lit windows; ground floor glazing with curtains.",
+    "quality": "occluded"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_NOLA.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Howard_Tilton_Library_NOLA.jpg.json",
+   "commons_title": "File:Howard Tilton Library NOLA.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Howard_Tilton_Library_NOLA.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Tulane Public Relations",
+   "date": "2001-08-20 00:46:21",
+   "pixels": [
+    1800,
+    1181
+   ],
+   "observation": {
+    "viewpoint": "Ground floor close-up, Aug 2001, sunlit (Wikidata P18 image)",
+    "storeys_visible": 2,
+    "notes": "Exposed-aggregate precast texture (white/cream pebble in light matrix); bronze-tinted glass with dark bronze frames; dark recess soffit; precast planters; ~1 m plinth with a step.",
+    "quality": "excellent for material"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Newcomb_Blvd_New_Orleans_1st_Nov_2019_18.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Newcomb_Blvd_New_Orleans_1st_Nov_2019_18.jpg.json",
+   "commons_title": "File:Newcomb Blvd New Orleans 1st Nov 2019 18.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Newcomb_Blvd_New_Orleans_1st_Nov_2019_18.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2019-11-01 12:00:49",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "From Newcomb Blvd gate across Freret (SSW), Nov 2019, sunlit",
+    "storeys_visible": 3,
+    "notes": "Addition: Freret face flat light blue-grey panels with 5 slots; ESE loggia bays receding to the right.",
+    "quality": "good"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Newcomb_Blvd_New_Orleans_1st_Nov_2019_19.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Newcomb_Blvd_New_Orleans_1st_Nov_2019_19.jpg.json",
+   "commons_title": "File:Newcomb Blvd New Orleans 1st Nov 2019 19.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Newcomb_Blvd_New_Orleans_1st_Nov_2019_19.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2019-11-01 12:00:51",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "Same as 54",
+    "storeys_visible": 3,
+    "notes": "Confirms 54.",
+    "quality": "good"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane80sNewcombTennis.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane80sNewcombTennis.json",
+   "commons_title": "File:Tulane80sNewcombTennis.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Tulane80sNewcombTennis.jpg",
+   "licence": "CC BY-SA 3.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "between circa 1980 and circa 1982<div style=\"display: none;\">date QS:P,+1980-00-00T00:00:00Z/8,P1319,+1980-00-00T00:00:00Z/9,P1326,+1982-00-00T00:00:00Z/9,P1480,Q5727902</div>",
+   "pixels": [
+    1280,
+    875
+   ],
+   "observation": {
+    "viewpoint": "From Newcomb tennis courts (ESE/campus side), c.1980-82, B&W",
+    "storeys_visible": 4,
+    "notes": "Pre-addition massing: terrace floor with balustrade + overhang, fin floors; no colour info.",
+    "quality": "B&W scan"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_U_Mch2013_HT_Library_Back.JPG",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_U_Mch2013_HT_Library_Back.JPG.json",
+   "commons_title": "File:Tulane U Mch2013 HT Library Back.JPG",
+   "url": "https://commons.wikimedia.org/wiki/File:Tulane_U_Mch2013_HT_Library_Back.JPG",
+   "licence": "CC BY-SA 3.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2013-03-20 16:59:41",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "NW corner (Audubon/Zimple), Mar 2013 late sun, mid-renovation",
+    "storeys_visible": 4,
+    "notes": "Long WNW flank + Zimple face: same fin system all round; louvred vents replace some windows; temporary silver ducts strapped to piers (construction); terrace balustrade and fascia clear.",
+    "quality": "good, low sun"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_University_Uptown_Campus_23_March_2023_-_01.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_University_Uptown_Campus_23_March_2023_-_01.jpg.json",
+   "commons_title": "File:Tulane University Uptown Campus, 23 March 2023 - 01.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Tulane_University_Uptown_Campus,_23_March_2023_-_01.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2023-03-23 13:32:22",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "From a side street to the NW, Mar 2023",
+    "storeys_visible": 2,
+    "notes": "Addition's WNW flank is flat light-grey panel; rooftop unit visible.",
+    "quality": "distant"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_University_Uptown_New_Orleans_29th_March_2019_04.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Tulane_University_Uptown_New_Orleans_29th_March_2019_04.jpg.json",
+   "commons_title": "File:Tulane University Uptown New Orleans 29th March 2019 04.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Tulane_University_Uptown_New_Orleans_29th_March_2019_04.jpg",
+   "licence": "CC BY-SA 4.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2019-03-29 10:41:18",
+   "pixels": [
+    1920,
+    2560
+   ],
+   "observation": {
+    "viewpoint": "NNE (Zimple) face from the NW corner lawn, Mar 2019, bright",
+    "storeys_visible": 6,
+    "notes": "Cleanest colour reference for the precast in diffuse light: flat panels, fins, dark neutral windows in stacked pairs, red-brown soffit band, dark ground-floor glass; addition flank flat panels with slots; the ESE loggia fins peek past the far corner.",
+    "quality": "excellent, even light"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Zimple_Audubon_Tulane_Library_Construction_Dec14.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Zimple_Audubon_Tulane_Library_Construction_Dec14.jpg.json",
+   "commons_title": "File:Zimple Audubon Tulane Library Construction Dec14.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Zimple_Audubon_Tulane_Library_Construction_Dec14.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2014-12-22 16:27:34",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "From Audubon/Zimple, 22 Dec 2014, addition under construction",
+    "storeys_visible": 6,
+    "notes": "Confirms the addition is exactly 2 storeys on top of the original 4 (red weather barrier, two levels), original terrace floor intact beneath.",
+    "quality": "good"
+   }
+  },
+  {
+   "file": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Zimple_Street_New_Orleans.jpg",
+   "sidecar": "/Users/mweild/Downloads/tulane-campus-3d/data/photos/howard_tilton/Zimple_Street_New_Orleans.jpg.json",
+   "commons_title": "File:Zimple Street, New Orleans.jpg",
+   "url": "https://commons.wikimedia.org/wiki/File:Zimple_Street,_New_Orleans.jpg",
+   "licence": "CC BY 2.0",
+   "author": "Infrogmation of New Orleans",
+   "date": "2018-05-01 10:22:11",
+   "pixels": [
+    1920,
+    1440
+   ],
+   "observation": {
+    "viewpoint": "NNE (Zimple) face from Zimple St, May 2018, overcast",
+    "storeys_visible": 6,
+    "notes": "Overcast frontal reference: Zimple face of addition = flat panels + 3 slots; ESE loggia beyond the corner; original precast greige; ground floor dark glass.",
+    "quality": "overcast, flat light"
+   }
+  }
+ ],
+ "colour_measurements": [
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "precast pier, sunlit, outside tree shadow",
+   "box_frac": [
+    0.618,
+    0.604,
+    0.644,
+    0.682
+   ],
+   "hex": "#5a5e5e",
+   "rgb": [
+    90,
+    94,
+    94
+   ],
+   "lab": [
+    39.7,
+    0.9,
+    -6.0
+   ],
+   "rgb_std": [
+    57.4,
+    50.7,
+    46.4
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "precast pier, in tree shadow (dappled)",
+   "box_frac": [
+    0.576,
+    0.604,
+    0.592,
+    0.693
+   ],
+   "hex": "#5c5f69",
+   "rgb": [
+    92,
+    95,
+    105
+   ],
+   "lab": [
+    40.5,
+    1.9,
+    -11.4
+   ],
+   "rgb_std": [
+    58.6,
+    49.6,
+    41.7
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ground-floor pilaster, sunlit",
+   "box_frac": [
+    0.677,
+    0.8125,
+    0.69,
+    0.883
+   ],
+   "hex": "#bbb2b1",
+   "rgb": [
+    187,
+    178,
+    177
+   ],
+   "lab": [
+    73.3,
+    2.9,
+    2.0
+   ],
+   "rgb_std": [
+    21.1,
+    21.3,
+    21.8
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "terrace column, sunlit",
+   "box_frac": [
+    0.548,
+    0.48,
+    0.56,
+    0.531
+   ],
+   "hex": "#7b6c6a",
+   "rgb": [
+    123,
+    108,
+    106
+   ],
+   "lab": [
+    46.6,
+    3.2,
+    2.3
+   ],
+   "rgb_std": [
+    20.6,
+    25.8,
+    35.8
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "terrace balustrade rail, sunlit",
+   "box_frac": [
+    0.615,
+    0.53,
+    0.646,
+    0.537
+   ],
+   "hex": "#3a4057",
+   "rgb": [
+    58,
+    64,
+    87
+   ],
+   "lab": [
+    27.2,
+    2.9,
+    -10.1
+   ],
+   "rgb_std": [
+    75.6,
+    70.7,
+    61.1
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "roof-slab fascia (original), sunlit",
+   "box_frac": [
+    0.583,
+    0.4516,
+    0.661,
+    0.464
+   ],
+   "hex": "#766254",
+   "rgb": [
+    118,
+    98,
+    84
+   ],
+   "lab": [
+    43.0,
+    5.3,
+    11.1
+   ],
+   "rgb_std": [
+    10.2,
+    10.0,
+    10.0
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "terrace slab soffit, deep shade",
+   "box_frac": [
+    0.604,
+    0.475,
+    0.672,
+    0.5
+   ],
+   "hex": "#332721",
+   "rgb": [
+    51,
+    39,
+    33
+   ],
+   "lab": [
+    16.7,
+    4.5,
+    6.8
+   ],
+   "rgb_std": [
+    32.6,
+    30.2,
+    27.7
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "red-brown band under terrace slab",
+   "box_frac": [
+    0.573,
+    0.57,
+    0.597,
+    0.578
+   ],
+   "hex": "#7d6c5d",
+   "rgb": [
+    125,
+    108,
+    93
+   ],
+   "lab": [
+    46.9,
+    4.1,
+    10.7
+   ],
+   "rgb_std": [
+    9.3,
+    9.6,
+    9.2
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "red-brown band, top of ground floor",
+   "box_frac": [
+    0.552,
+    0.795,
+    0.615,
+    0.803
+   ],
+   "hex": "#4a3028",
+   "rgb": [
+    74,
+    48,
+    40
+   ],
+   "lab": [
+    22.6,
+    7.2,
+    8.4
+   ],
+   "rgb_std": [
+    46.2,
+    49.3,
+    49.6
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "fin-floor window, upper pane",
+   "box_frac": [
+    0.549,
+    0.598,
+    0.568,
+    0.629
+   ],
+   "hex": "#717478",
+   "rgb": [
+    113,
+    116,
+    120
+   ],
+   "lab": [
+    48.7,
+    0.9,
+    -10.9
+   ],
+   "rgb_std": [
+    46.7,
+    45.7,
+    47.4
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "fin-floor window, lower pane",
+   "box_frac": [
+    0.549,
+    0.641,
+    0.568,
+    0.695
+   ],
+   "hex": "#787f8c",
+   "rgb": [
+    120,
+    127,
+    140
+   ],
+   "lab": [
+    53.0,
+    1.6,
+    -7.4
+   ],
+   "rgb_std": [
+    63.8,
+    55.5,
+    48.3
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ground-floor glazing (tinted)",
+   "box_frac": [
+    0.583,
+    0.82,
+    0.625,
+    0.859
+   ],
+   "hex": "#312a25",
+   "rgb": [
+    49,
+    42,
+    37
+   ],
+   "lab": [
+    17.6,
+    1.6,
+    3.7
+   ],
+   "rgb_std": [
+    9.9,
+    9.0,
+    8.7
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "planter face, sunlit",
+   "box_frac": [
+    0.646,
+    0.883,
+    0.669,
+    0.897
+   ],
+   "hex": "#9e8c66",
+   "rgb": [
+    158,
+    140,
+    102
+   ],
+   "lab": [
+    59.1,
+    1.0,
+    13.1
+   ],
+   "rgb_std": [
+    45.5,
+    42.1,
+    48.4
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "base plinth, sunlit",
+   "box_frac": [
+    0.583,
+    0.9,
+    0.646,
+    0.9125
+   ],
+   "hex": "#534946",
+   "rgb": [
+    83,
+    73,
+    70
+   ],
+   "lab": [
+    31.8,
+    4.1,
+    4.6
+   ],
+   "rgb_std": [
+    30.0,
+    30.2,
+    31.1
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ADDITION loggia fin, sunlit face",
+   "box_frac": [
+    0.8297,
+    0.172,
+    0.837,
+    0.344
+   ],
+   "hex": "#0c121e",
+   "rgb": [
+    12,
+    18,
+    30
+   ],
+   "lab": [
+    5.4,
+    1.3,
+    -7.8
+   ],
+   "rgb_std": [
+    45.2,
+    55.1,
+    77.0
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ADDITION loggia fin, sky-lit face",
+   "box_frac": [
+    0.841,
+    0.172,
+    0.852,
+    0.344
+   ],
+   "hex": "#b6bbcc",
+   "rgb": [
+    182,
+    187,
+    204
+   ],
+   "lab": [
+    76.1,
+    0.9,
+    -9.7
+   ],
+   "rgb_std": [
+    74.4,
+    64.1,
+    63.9
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ADDITION recess panel (black)",
+   "box_frac": [
+    0.719,
+    0.18,
+    0.792,
+    0.234
+   ],
+   "hex": "#0c0f16",
+   "rgb": [
+    12,
+    15,
+    22
+   ],
+   "lab": [
+    4.3,
+    0.5,
+    -4.5
+   ],
+   "rgb_std": [
+    9.9,
+    10.9,
+    13.1
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "ADDITION glazing (lit interior)",
+   "box_frac": [
+    0.703,
+    0.297,
+    0.755,
+    0.344
+   ],
+   "hex": "#2e3c37",
+   "rgb": [
+    46,
+    60,
+    55
+   ],
+   "lab": [
+    24.2,
+    -5.6,
+    0.6
+   ],
+   "rgb_std": [
+    25.1,
+    27.8,
+    31.5
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "43 Feb2026 ESE flank, sun",
+   "region": "original roof fascia under addition, sunlit",
+   "box_frac": [
+    0.729,
+    0.367,
+    0.75,
+    0.384
+   ],
+   "hex": "#a9a19b",
+   "rgb": [
+    169,
+    161,
+    155
+   ],
+   "lab": [
+    67.2,
+    2.2,
+    2.0
+   ],
+   "rgb_std": [
+    64.3,
+    51.4,
+    47.3
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "24 Apr2019 S corner, sun",
+   "region": "ADDITION flat panel, sunlit (Freret face)",
+   "box_frac": [
+    0.38,
+    0.189,
+    0.458,
+    0.279
+   ],
+   "hex": "#c0d3e9",
+   "rgb": [
+    192,
+    211,
+    233
+   ],
+   "lab": [
+    83.8,
+    -1.6,
+    -12.9
+   ],
+   "rgb_std": [
+    4.9,
+    5.0,
+    6.1
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "24 Apr2019 S corner, sun",
+   "region": "ADDITION recess (black)",
+   "box_frac": [
+    0.5,
+    0.133,
+    0.5625,
+    0.189
+   ],
+   "hex": "#151719",
+   "rgb": [
+    21,
+    23,
+    25
+   ],
+   "lab": [
+    7.7,
+    0.1,
+    -1.6
+   ],
+   "rgb_std": [
+    68.3,
+    77.4,
+    88.3
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "precast flat panel, lit A",
+   "box_frac": [
+    0.078,
+    0.324,
+    0.12,
+    0.43
+   ],
+   "hex": "#a19a8f",
+   "rgb": [
+    161,
+    154,
+    143
+   ],
+   "lab": [
+    64.0,
+    0.7,
+    6.7
+   ],
+   "rgb_std": [
+    24.6,
+    23.8,
+    23.0
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "precast flat panel, lit B",
+   "box_frac": [
+    0.159,
+    0.324,
+    0.193,
+    0.422
+   ],
+   "hex": "#a8a49c",
+   "rgb": [
+    168,
+    164,
+    156
+   ],
+   "lab": [
+    67.4,
+    -0.2,
+    5.0
+   ],
+   "rgb_std": [
+    7.6,
+    7.9,
+    8.5
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "precast fin, lit face",
+   "box_frac": [
+    0.151,
+    0.324,
+    0.158,
+    0.422
+   ],
+   "hex": "#9d988d",
+   "rgb": [
+    157,
+    152,
+    141
+   ],
+   "lab": [
+    62.9,
+    0.6,
+    6.3
+   ],
+   "rgb_std": [
+    14.8,
+    15.6,
+    14.8
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "fin-floor window, lower pane",
+   "box_frac": [
+    0.125,
+    0.357,
+    0.143,
+    0.422
+   ],
+   "hex": "#323232",
+   "rgb": [
+    50,
+    50,
+    50
+   ],
+   "lab": [
+    20.8,
+    -0.0,
+    0.0
+   ],
+   "rgb_std": [
+    12.2,
+    12.9,
+    13.4
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "fin-floor window, upper pane",
+   "box_frac": [
+    0.125,
+    0.322,
+    0.143,
+    0.35
+   ],
+   "hex": "#38383a",
+   "rgb": [
+    56,
+    56,
+    58
+   ],
+   "lab": [
+    23.5,
+    0.4,
+    -0.3
+   ],
+   "rgb_std": [
+    17.2,
+    16.6,
+    15.1
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "red-brown soffit band, top of ground floor",
+   "box_frac": [
+    0.172,
+    0.538,
+    0.208,
+    0.545
+   ],
+   "hex": "#433d34",
+   "rgb": [
+    67,
+    61,
+    52
+   ],
+   "lab": [
+    26.1,
+    1.0,
+    6.3
+   ],
+   "rgb_std": [
+    50.6,
+    50.6,
+    48.6
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "ground-floor glazing (dark)",
+   "box_frac": [
+    0.195,
+    0.553,
+    0.208,
+    0.57
+   ],
+   "hex": "#3d382e",
+   "rgb": [
+    61,
+    56,
+    46
+   ],
+   "lab": [
+    23.6,
+    -0.1,
+    7.2
+   ],
+   "rgb_std": [
+    11.6,
+    9.7,
+    7.7
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "ADDITION flat panel (sky reflection)",
+   "box_frac": [
+    0.6,
+    0.117,
+    0.725,
+    0.211
+   ],
+   "hex": "#939dac",
+   "rgb": [
+    147,
+    157,
+    172
+   ],
+   "lab": [
+    64.5,
+    -0.9,
+    -8.9
+   ],
+   "rgb_std": [
+    18.2,
+    19.2,
+    21.1
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "64 Mar2019 NNE (Zimple) face, lit",
+   "region": "ADDITION slot window",
+   "box_frac": [
+    0.676,
+    0.15,
+    0.682,
+    0.2
+   ],
+   "hex": "#68717a",
+   "rgb": [
+    104,
+    113,
+    122
+   ],
+   "lab": [
+    47.2,
+    -1.7,
+    -6.1
+   ],
+   "rgb_std": [
+    11.9,
+    11.8,
+    10.9
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "49 Aug2001 close-up, sun",
+   "region": "exposed-aggregate precast, sunlit",
+   "box_frac": [
+    0.7,
+    0.356,
+    0.739,
+    0.635
+   ],
+   "hex": "#c5c8b7",
+   "rgb": [
+    197,
+    200,
+    183
+   ],
+   "lab": [
+    79.9,
+    -4.0,
+    7.8
+   ],
+   "rgb_std": [
+    71.9,
+    71.4,
+    69.1
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "49 Aug2001 close-up, sun",
+   "region": "precast soffit, shade",
+   "box_frac": [
+    0.583,
+    0.343,
+    0.694,
+    0.385
+   ],
+   "hex": "#271804",
+   "rgb": [
+    39,
+    24,
+    4
+   ],
+   "lab": [
+    9.7,
+    2.3,
+    10.0
+   ],
+   "rgb_std": [
+    62.1,
+    68.5,
+    66.3
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "49 Aug2001 close-up, sun",
+   "region": "ground-floor glazing (bronze tint + curtains)",
+   "box_frac": [
+    0.822,
+    0.381,
+    0.917,
+    0.593
+   ],
+   "hex": "#22210a",
+   "rgb": [
+    34,
+    33,
+    10
+   ],
+   "lab": [
+    12.2,
+    -3.3,
+    12.4
+   ],
+   "rgb_std": [
+    18.4,
+    18.8,
+    17.2
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "49 Aug2001 close-up, sun",
+   "region": "window frame (dark bronze)",
+   "box_frac": [
+    0.808,
+    0.381,
+    0.817,
+    0.593
+   ],
+   "hex": "#0d0d01",
+   "rgb": [
+    13,
+    13,
+    1
+   ],
+   "lab": [
+    3.4,
+    -1.2,
+    4.0
+   ],
+   "rgb_std": [
+    25.6,
+    25.6,
+    23.6
+   ],
+   "reliable": true
+  },
+  {
+   "photo": "3 Dec2007 Freret face, low sun",
+   "region": "precast fin, sunlit",
+   "box_frac": [
+    0.668,
+    0.381,
+    0.674,
+    0.575
+   ],
+   "hex": "#e4dfd3",
+   "rgb": [
+    228,
+    223,
+    211
+   ],
+   "lab": [
+    88.9,
+    0.6,
+    4.5
+   ],
+   "rgb_std": [
+    58.9,
+    58.6,
+    53.5
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "60 Mar2013 late sun",
+   "region": "fin-floor pier, sunlit",
+   "box_frac": [
+    0.319,
+    0.31,
+    0.336,
+    0.448
+   ],
+   "hex": "#c1bcb7",
+   "rgb": [
+    193,
+    188,
+    183
+   ],
+   "lab": [
+    76.6,
+    0.1,
+    2.8
+   ],
+   "rgb_std": [
+    48.0,
+    49.1,
+    47.6
+   ],
+   "reliable": false
+  },
+  {
+   "photo": "66 May2018 NNE face, overcast",
+   "region": "ADDITION flat panel (overcast, frontal)",
+   "box_frac": [
+    0.365,
+    0.311,
+    0.479,
+    0.403
+   ],
+   "hex": "#b4bec6",
+   "rgb": [
+    180,
+    190,
+    198
+   ],
+   "lab": [
+    76.5,
+    -1.7,
+    -5.6
+   ],
+   "rgb_std": [
+    28.5,
+    29.2,
+    30.8
+   ],
+   "reliable": false
+  }
+ ],
+ "storeys_total": 6,
+ "storeys": [
+  {
+   "n": 1,
+   "name": "ground floor (raised ~1 m on plinth)",
+   "height_m_est": 4.3,
+   "treatment": "recessed full-height dark storefront glazing between wide precast pilasters; precast planters on plinth"
+  },
+  {
+   "n": 2,
+   "name": "fin floor",
+   "height_m_est": 4.0,
+   "treatment": "projecting precast fins, narrow tall windows"
+  },
+  {
+   "n": 3,
+   "name": "fin floor",
+   "height_m_est": 4.0,
+   "treatment": "as storey 2 (stacked window pairs, thin spandrel)"
+  },
+  {
+   "n": 4,
+   "name": "terrace floor (original top)",
+   "height_m_est": 4.0,
+   "treatment": "set back ~2 m behind continuous precast balustrade; full-height glazing; deep flat roof slab overhang (~2 m) with 0.7 m pale fascia"
+  },
+  {
+   "n": 5,
+   "name": "2014 addition",
+   "height_m_est": 5.5,
+   "treatment": "light blue-grey aluminium panel box; ESE side = deep white-framed loggia"
+  },
+  {
+   "n": 6,
+   "name": "2014 addition",
+   "height_m_est": 5.5,
+   "treatment": "as storey 5 (single 2-storey volume with 11 loggia bays on ESE)"
+  }
+ ],
+ "facade": {
+  "wall": {
+   "material": "precast concrete with exposed white/cream aggregate (pebbly bush-hammered texture), organised as projecting vertical fins/pilasters with flat recessed panels; applies to storeys 1-4 on all four faces",
+   "color_hex": "#c0bdb5",
+   "color_hex_diffuse": "#a5a097",
+   "color_hex_shade": "#8a8781",
+   "color_lab_sunlit": [
+    77,
+    0,
+    4
+   ],
+   "measured_from": [
+    "49 sunlit #c5c8b7",
+    "60 sunlit #c1bcb7",
+    "43 ground-floor pilaster #bbb2b1",
+    "64 diffuse #a8a49c/#a19a8f/#9d988d",
+    "3 low-sun #e4dfd3"
+   ],
+   "fin_rhythm": {
+    "structural_bay_m": 7.9,
+    "fins_per_bay": 3,
+    "fin_projection_m": 0.35,
+    "fin_width_m": 0.4,
+    "note": "each window is flanked by a projecting fin; flat panel ~1.1 m between fin pairs"
+   },
+   "confidence": 0.85
+  },
+  "trim": {
+   "material": "dark red-brown (oxblood) painted metal/precast bands at the slab edges: a ~0.4 m soffit strip over the ground-floor glazing and a ~0.4 m band under the terrace (storey-4) slab; the terrace ceiling/soffit is dark brown; in 2007 photos every fin-floor window also had a small red-brown sill panel (not seen after the 2013-14 reglazing)",
+   "color_hex": "#4a3028",
+   "color_hex_shade": "#332721",
+   "measured_from": [
+    "43 top-of-ground-floor band #4a3028 (mixed)",
+    "64 band #433d34 (mixed)",
+    "43 band under terrace #7d6c5d (lit, clean)",
+    "43 terrace soffit #332721"
+   ],
+   "confidence": 0.6
+  },
+  "glazing": {
+   "tint_hex": "#353639",
+   "frame_hex": "#1a1a14",
+   "ground_floor": {
+    "tint_hex": "#312a25",
+    "frame_hex": "#0d0d01",
+    "description": "continuous full-height storefront (floor-to-soffit), bronze/dark-grey tint, dark bronze anodised mullions ~1.4 m apart, beige curtains inside; recessed ~1.5 m behind the pilaster line",
+    "measured_from": [
+     "43 #312a25",
+     "64 #3d382e",
+     "49 #22210a (2001 bronze glass)"
+    ]
+   },
+   "pattern": {
+    "storeys": [
+     2,
+     3
+    ],
+    "bays_per_side": {
+     "ESE_87m": 33,
+     "WNW_87m": 33,
+     "SSW_46m": 17,
+     "NNE_46m": 17
+    },
+    "window_w_m": 0.85,
+    "window_h_m": 3.3,
+    "window_aspect": "1:3.8",
+    "pitch_m": 2.6,
+    "stacked": "storey-2 and storey-3 windows align vertically, separated by a thin (~0.3 m) spandrel/transom",
+    "sill_band": false,
+    "sill_band_2007": true,
+    "louvres": "a few window positions on WNW/NNE hold pale louvred vents"
+   },
+   "terrace_floor": {
+    "description": "storey 4: continuous full-height dark glazing set ~2 m back behind the balustrade; reads as a dark void under the overhang",
+    "tint_hex": "#2b2f36"
+   },
+   "measured_from": [
+    "64 windows #323232/#38383a (clean)",
+    "43 windows #717478/#787f8c (sky-reflecting, mixed)"
+   ],
+   "confidence": 0.7
+  },
+  "base": {
+   "material": "same exposed-aggregate precast: continuous plinth ~1.0-1.2 m tall (partial basement) with a projecting precast slab edge, continuous precast planter boxes on the podium, steps and an accessible ramp at the entrance; iron picket fence along Freret",
+   "color_hex": "#a9a49c",
+   "color_hex_shade": "#534946",
+   "podium_height_m": 1.1,
+   "entrance": {
+    "side": "ESE (campus/Newcomb Place) near the Freret corner",
+    "features": "glass doors within the storefront line, no separate canopy (fin floors overhang ~1.5 m), building name in metal letters on the pilaster, ramp + steps"
+   },
+   "confidence": 0.7
+  },
+  "roof_edge": {
+   "original_at_m": 17.5,
+   "description": "deep flat roof slab projecting ~2 m beyond the terrace glazing with a ~0.7 m pale precast fascia and exposed beam ends; now the cornice line between storey 4 and the addition; terrace balustrade (rail on squat balusters, ~1.0 m) sits ~1.2 m inside the slab edge",
+   "fascia_hex": "#bdb9b0",
+   "fascia_hex_shade": "#766254",
+   "addition_roof_edge": "flat, minimal metal coping in the same light-grey panel, no visible parapet upstand; 2025 ortho shows large PV arrays and 3 rooftop mechanical enclosures",
+   "confidence": 0.8
+  },
+  "upper_addition": {
+   "present": true,
+   "storeys": 2,
+   "which_storeys": [
+    5,
+    6
+   ],
+   "built": "2013-2014 (Dec 2014 photo shows the 2-storey steel frame under red weather barrier)",
+   "height_m_est": 11.0,
+   "material": "flat light blue-grey aluminium composite panels (~1.2 m vertical panels, horizontal joints ~1.5 m) with sparse full-height slot windows on the Freret (SSW: 4-5 slots), Zimple (NNE: 3-5) and Audubon (WNW) faces; the ESE (campus) face is an 11-bay loggia of deep white/light-grey aluminium fin frames (fins ~0.5 m, ~2.5 m deep) with black perforated side panels and recessed dark-tinted curtain-wall glazing",
+   "color_hex": "#b4bec6",
+   "color_hex_sunlit": "#c0d3e9",
+   "color_hex_shade": "#939dac",
+   "loggia_frame_hex": "#dfe3e6",
+   "loggia_frame_hex_skylit": "#b6bbcc",
+   "loggia_recess_hex": "#0d1016",
+   "loggia_glazing_hex": "#2e3c37",
+   "slot_glazing_hex": "#68717a",
+   "setback": "addition wall sits ~1.2 m inside the original roof edge on the WNW and SSW sides (lighter strip in the 2025 ortho); loggia fins reach the roof edge on the ESE side",
+   "measured_from": [
+    "24 sunlit panel #c0d3e9 (std 5)",
+    "66 overcast panel #b4bec6",
+    "64 panel #939dac",
+    "43 recess #0c0f16",
+    "43 glazing #2e3c37",
+    "43 fin sky-lit #b6bbcc (mixed)"
+   ],
+   "confidence": 0.8
+  }
+ },
+ "per_attribute_confidence": {
+  "wall_material": 0.9,
+  "wall_colour": 0.75,
+  "fin_rhythm": 0.6,
+  "trim": 0.6,
+  "glazing_colour": 0.75,
+  "window_pattern": 0.65,
+  "base": 0.7,
+  "roof_edge": 0.8,
+  "addition_present_and_storeys": 0.95,
+  "addition_colour": 0.8,
+  "addition_face_layout": 0.85,
+  "storey_heights": 0.5
+ },
+ "cross_checks_lidar": {
+  "model_height_m": 28.4,
+  "model_height_max_m": 32.6,
+  "osm_levels": 6,
+  "avg_m_per_storey": 4.73,
+  "assessment": "Plausible. Photos show 4 original storeys (raised ground + 2 fin floors + terrace floor) under the deep roof slab, plus a 2-storey addition; ground-level photo proportions (66, near-frontal overcast) put the addition at ~0.6x the original block height -> original ~17.5 m, addition ~11 m (two ~5.5 m storeys incl. interstitial/mechanical), total ~28.5 m, matching the LiDAR 28.4 m eave. The 2014 addition is storeys 5 and 6 (the top two). height:max 32.6 m = ~4 m rooftop mechanical enclosures seen in the 2025 ortho and in the 2002 rooftop photo.",
+  "footprint": "87.0 x 46.0 m, long axis bearing 30 deg; Freret frontage is the 46 m SSW side; roof:planes=1 flat agrees with photos and ortho (roof now largely covered by PV arrays, which the ortho-derived roof colour will pick up as dark blue).",
+  "model_material_gap": "build_model.py uses one beige WALL=[214,206,194] (#d6cec2). The real lower 17.5 m is a cooler, greyer greige precast (#c0bdb5 sunlit / #a5a097 diffuse) dominated by vertical fin shadows; the top 11 m is a distinctly different light blue-grey metal box (#b4bec6) with a black-and-white loggia on the ESE side. Recommended: split the wall material at z~17.5 m, darken/desaturate the lower wall, add fin relief or a fin-shadow texture, and a loggia texture on the ESE face."
+ },
+ "notes": [
+  "Addition layout was contradictory from ground photos alone (24/54/55 vs 64/66); the 2025 rotated ortho settles it: the loggia 'teeth' run the full ESE edge only; the other three edges are plain. Photo 43's Commons GPS (NE of the building) is consistent with this; a sun-angle argument that it was the Freret face was wrong.",
+  "Concrete-building photos at Freret/McAlister (Stern Hall) look superficially similar (pilotis, precast) and were excluded after inspection.",
+  "Transient conditions in the set: 2013 silver ducts on piers (renovation), Nov 2021 sidewalk scaffold canopy and tan boarding on Freret ground floor, 2019 'Commons' construction fence along Newcomb Place.",
+  "Colour caveats: 2007/2013/2026 sunlit samples carry warm sun + blue sky-fill; 64 (2019, even light) is the best neutral reference for the precast; the sunlit aluminium panels of the addition reflect sky (#c0d3e9) and look much bluer than their diffuse colour (#b4bec6).",
+  "Two 1600-px thumbnails were rate-limited (429); 1280-px versions were fetched instead (files 46, 56). 12 files were reused from a parallel download already present in the folder (1920-px) rather than re-downloaded; all files are <= 1 MB."
+ ]
+}

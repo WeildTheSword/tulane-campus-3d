@@ -12,6 +12,8 @@ import numpy as np
 import trimesh
 from PIL import Image
 from scipy.spatial import cKDTree
+from shapely.geometry import MultiPoint
+import glob, re
 try:
     import fast_simplification
 except ImportError:
@@ -27,6 +29,7 @@ ap.add_argument('--jpeg', type=int, default=78)
 ap.add_argument('--quant', type=float, default=0.05, help='position quantum in m (int16 positions via KHR_mesh_quantization); 0 = float32')
 ap.add_argument('--decimate', type=float, default=0.7, help='quadric-decimate unnamed buildings by this fraction (planar roofs survive it); 0 = off')
 ap.add_argument('--decimate-named', type=float, default=0.4, help='same for named buildings')
+ap.add_argument('--facades', default='data/facades', help='directory of facade specs (data/facades/<slug>.json); a spec with a "render" block drives the procedural facade shader for that named building')
 ap.add_argument('--out', default='out/tulane_scan.html')
 args = ap.parse_args(); coarse = args.coarse or args.fine
 
@@ -89,13 +92,58 @@ def colors_of(g):
     if vc is None or len(vc) != len(g.vertices): return None
     return np.asarray(vc)[:, :4].astype(np.uint8)
 
+def merge_by_position(V, F, C, q=1e-3):
+    """Weld vertices that share a position (build_model gives every wall quad its own bottom/top copies)."""
+    key = np.round(np.asarray(V, np.float64) / q).astype(np.int64)
+    _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True)
+    return np.asarray(V)[first], inv.reshape(-1)[np.asarray(F)], (C[first] if C is not None else None)
+
+def face_normals(V, F):
+    a = V[F[:, 1]] - V[F[:, 0]]; b = V[F[:, 2]] - V[F[:, 0]]; n = np.cross(a, b); L = np.linalg.norm(n, axis=1); return n / np.maximum(L, 1e-9)[:, None]
+
+def floor_cap(V, F):
+    """Fan-triangulate the open bottom of a building shell so quadric decimation cannot collapse the wall bottoms into the roof edge."""
+    ymin = V[:, 1].min(); bottom = np.isclose(V[:, 1], ymin, atol=1e-3)
+    wall = np.abs(face_normals(V, F)[:, 1]) < 0.02; fw = F[wall]; bm = bottom[fw]; two = bm.sum(1) == 2
+    if not two.any(): return V, F
+    e = np.array([f[m] for f, m in zip(fw[two], bm[two])]); e = np.unique(np.sort(e, 1), axis=0)
+    c = np.array([[V[bottom, 0].mean(), ymin, V[bottom, 2].mean()]], V.dtype); ci = len(V)
+    return np.vstack([V, c]), np.vstack([F, np.column_stack([e[:, 1], e[:, 0], np.full(len(e), ci)])])
+
 def decimate(V, F, C, frac):
-    """Quadric decimation; colours re-attached from the nearest original vertex."""
+    """Quadric decimation that keeps walls vertical: weld duplicate vertices, cap the open bottom, simplify, strip the cap,
+    re-attach colours from the nearest original vertex. (Plain QEM on the open shell turned every wall into slanted slivers.)"""
     if not frac or fast_simplification is None or len(F) < 60: return V, F, C
-    V2, F2 = fast_simplification.simplify(np.asarray(V, np.float32), np.asarray(F, np.int64), target_reduction=float(frac), agg=6)
+    V0 = np.asarray(V, np.float32); F0 = np.asarray(F, np.int64)
+    Vm, Fm, Cm = merge_by_position(V0, F0, C); Vc, Fc = floor_cap(Vm, Fm)
+    V2, F2 = fast_simplification.simplify(Vc, Fc, target_reduction=float(frac), agg=6)
     if len(F2) < 4: return V, F, C
-    C2 = C[cKDTree(V).query(V2, k=1)[1]] if C is not None else None
+    ymin = V2[:, 1].min(); F2 = F2[~np.isclose(V2[F2, 1], ymin, atol=1e-3).all(1)]        # strip the cap again
+    used = np.unique(F2); remap = np.full(len(V2), -1, np.int64); remap[used] = np.arange(len(used)); V2 = V2[used]; F2 = remap[F2]
+    C2 = Cm[cKDTree(Vm).query(V2, k=1)[1]] if Cm is not None else None
     return V2, F2, C2
+
+def dominant_angle(V, F):
+    """phi (radians in the glTF xz plane, from +x towards +z) of the long side of the wall footprint's minimum-area rectangle —
+    the page projects world xz onto (cos phi, sin phi) / its perpendicular to get a continuous u along each facade despite the 1 m staircase walls."""
+    V = np.asarray(V, np.float64); ymin = V[:, 1].min(); b = V[np.isclose(V[:, 1], ymin, atol=1e-3)]
+    if len(b) < 4: return 0.0
+    r = np.asarray(MultiPoint(np.column_stack([b[:, 0], b[:, 2]])).minimum_rotated_rectangle.exterior.coords)[:4]
+    e = r[1:] - r[:-1]; L = np.hypot(e[:, 0], e[:, 1]); k = int(np.argmax(L))
+    return float(np.arctan2(e[k, 1], e[k, 0])) % np.pi
+
+def norm_name(n): return re.sub(r'[^a-z0-9]', '', (n or '').lower())
+
+def load_facades(d):
+    """{normalised building name: render block} from every data/facades/*.json that carries one."""
+    out = {}
+    for fp in sorted(glob.glob(os.path.join(d, '*.json'))):
+        if '.pass' in os.path.basename(fp): continue
+        try: spec = json.load(open(fp, encoding='utf-8'))
+        except Exception as e: print('facade spec unreadable', fp, e); continue
+        r = spec.get('render'); name = (spec.get('building') or {}).get('name')
+        if r and name: out[norm_name(name)] = dict(r, name=name, storeys_total=spec.get('storeys_total'))
+    return out
 
 def fit_lookup(build_dir):
     """node stem -> fit:rmse from the build's enriched geojson (named: the name; unnamed: '<building>_<osm id>'; scan-only: 'structure_N')."""
@@ -118,8 +166,10 @@ coarse_s = fine if coarse == args.fine else load_scene(os.path.join(coarse, 'tul
 glb = GLB(); named = 0; fit_f = fit_lookup(args.fine); fit_c = fit_lookup(coarse)
 for n, g in fine.items():
     if is_named(n):
-        stem = n.rsplit('#', 1)[0]; V, F, C = decimate(g.vertices, g.faces, colors_of(g), args.decimate_named)
-        glb.mesh(n, V, F, C, label=stem, extras=dict(fit=fit_f.get(stem))); named += 1
+        stem = n.rsplit('#', 1)[0]; V0 = np.asarray(g.vertices, np.float32); F0 = np.asarray(g.faces, np.int64)
+        phi = dominant_angle(V0, F0); base = float(V0[:, 1].min()) + 0.6; h = float(V0[:, 1].max() - V0[:, 1].min())   # facade frame for the shader, measured before decimation
+        V, F, C = decimate(V0, F0, colors_of(g), args.decimate_named)
+        glb.mesh(n, V, F, C, label=stem, extras=dict(fit=fit_f.get(stem), phi=round(phi, 4), base=round(base, 2), h=round(h, 2))); named += 1
 # everything unnamed from the coarse build, merged into a handful of big meshes (fewer draw calls); per-building fit kept as vertex ranges
 chunks = []; V = []; F = []; C = []; R = []; off = 0; nhouse = 0
 def flush():
@@ -135,6 +185,18 @@ for n, g in coarse_s.items():
     if off > 60000: flush()
 flush()
 bld = glb.bytes(); print(f'buildings: {named} named (fine) + {nhouse} unnamed (coarse, {len(chunks)} merged meshes) -> {len(bld) / 1048576:.2f} MB')
+
+# ----------------------------------------------------------------------------- walkways and roads
+pg = GLB(); npaths = 0
+try:
+    ps = trimesh.load(os.path.join(args.fine, 'tulane_paths.glb'), force='scene')
+    for n, g in ps.geometry.items():
+        V, F, C = np.asarray(g.vertices, np.float32), np.asarray(g.faces, np.int64), colors_of(g)
+        pg.mesh(n, V, F, C, label=n); npaths += 1
+    paths_glb = pg.bytes() if npaths else b''
+except Exception as e:
+    print('no path network packed:', e); paths_glb = b''
+if paths_glb: print(f'paths: {npaths} surface groups -> {len(paths_glb) / 1048576:.2f} MB')
 
 # ----------------------------------------------------------------------------- terrain + cropped orthophoto
 tg = GLB()
@@ -160,6 +222,10 @@ imagery = ortho_meta.get('license', 'aerial orthophoto') + f" · {ortho_meta.get
 
 html = open(args.template, encoding='utf-8').read()
 html = html.replace('__BUILDINGS_B64__', base64.b64encode(bld).decode()).replace('__TERRAIN_B64__', base64.b64encode(ter).decode()).replace('__ORTHO_B64__', base64.b64encode(jpg).decode())
+html = html.replace('__PATHS_B64__', base64.b64encode(paths_glb).decode() if paths_glb else '')
+facades = load_facades(args.facades) if args.facades else {}
+print(f'facade specs: {len(facades)} ({", ".join(v["name"] for v in facades.values())})')
 html = html.replace('__TREES_JSON__', json.dumps(trees, separators=(',', ':'))).replace('__META_JSON__', json.dumps(dict(stats=stats, named=named, unnamed=nhouse, imagery=imagery)))
+html = html.replace('__FACADES_JSON__', json.dumps(facades, separators=(',', ':')))
 os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True); open(args.out, 'w', encoding='utf-8').write(html)
 print(f'wrote {args.out} ({len(html.encode()) / 1048576:.2f} MB)')

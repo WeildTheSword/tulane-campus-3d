@@ -44,6 +44,8 @@ ap.add_argument('--obj', action='store_true', help='also write .obj copies of th
 ap.add_argument('--plane-tol', type=float, default=0.2, help='RANSAC roof-plane inlier tolerance in m (QL2 LiDAR vertical RMSE is ~0.1)')
 ap.add_argument('--no-planes', action='store_true', help='skip roof plane fitting (gridded roofs only)')
 ap.add_argument('--no-orphans', action='store_true', help='do not add structures the scan sees but OSM lacks')
+ap.add_argument('--no-paths', action='store_true', help='do not build the walkway/road network (tulane_paths.glb + .json)')
+ap.add_argument('--path-width-from-ortho', dest='path_width_ortho', action='store_true', default=True, help='measure real path width from the orthophoto instead of assuming a width per highway type')
 ap.add_argument('--orphan-min-area', type=float, default=40.0, help='m² — smaller unmapped structures are ignored (vehicles, kiosks)')
 ap.add_argument('--extra-footprints', default='data/city_footprints.geojson', help='second footprint set (city GIS); adds buildings OSM lacks, and OSM buildings absent from both it and the scan are dropped as demolished')
 args = ap.parse_args()
@@ -352,8 +354,9 @@ def heightfield_mesh(mask, top, base_z, x0, y0, res, walls=True):
             if len(ei) == 0: continue
             At = vid[ei + A[0], ej + A[1]]; Bt = vid[ei + B[0], ej + B[1]]
             Ab = np.column_stack([V[At, 0], V[At, 1], np.full(len(At), base_z)]); Bb = np.column_stack([V[Bt, 0], V[Bt, 1], np.full(len(Bt), base_z)])
-            iAb = nv + np.arange(len(At)); iBb = iAb + len(At); nv += 2 * len(At)
-            extra_V += [Ab, Bb]; extra_F += [np.stack([iAb, iBb, Bt], 1), np.stack([iAb, Bt, At], 1)]
+            n_ = len(At); iAb = nv + np.arange(n_); iBb = iAb + n_; iAt = iBb + n_; iBt = iAt + n_; nv += 4 * n_
+            extra_V += [Ab, Bb, V[At].copy(), V[Bt].copy()]                         # walls get private top vertices: the shared roof vertex carried the orthophoto colour down every wall
+            extra_F += [np.stack([iAb, iBb, iBt], 1), np.stack([iAb, iBt, iAt], 1)]
         if extra_V:
             V = np.vstack([V] + extra_V); F += extra_F; is_top = np.concatenate([is_top, np.zeros(len(V) - len(is_top), bool)])
     F = np.vstack(F)
@@ -367,9 +370,20 @@ def to_trimesh(V, F, colors=None, name=None):
     return m
 
 WALL = np.array([214, 206, 194, 255], np.uint8)
+FACADES = {}   # normalised building name -> wall RGBA from data/facades/<slug>.json (photo-derived; see Docs/facade-method.md)
+import re as _re
+def _norm(n): return _re.sub(r'[^a-z0-9]', '', (n or '').lower())
+for _fp in glob.glob('data/facades/*.json'):
+    if '.pass' in os.path.basename(_fp): continue
+    try:
+        _spec = json.load(open(_fp, encoding='utf-8')); _hex = (_spec.get('render') or {}).get('wall') or (_spec.get('facade') or {}).get('wall', {}).get('color_hex_diffuse')
+        if _hex: FACADES[_norm(_spec['building']['name'])] = np.array([int(_hex[1:3], 16), int(_hex[3:5], 16), int(_hex[5:7], 16), 255], np.uint8)
+    except Exception as _e: log(f'facade spec skipped {_fp}: {_e}')
+if FACADES: log(f'facade specs: {len(FACADES)} building(s) get photo-derived wall colours')
+def wall_rgb(name): return FACADES.get(_norm(name), WALL)
 
-def color_vertices(V, is_top, fallback=(200, 120, 100)):
-    cols = np.tile(WALL, (len(V), 1))
+def color_vertices(V, is_top, fallback=(200, 120, 100), wall=None):
+    cols = np.tile(WALL if wall is None else wall, (len(V), 1))
     if is_top.any():
         s = sample_naip(V[is_top, 0], V[is_top, 1])
         if s is None: s = np.tile(np.array(fallback, np.uint8), (int(is_top.sum()), 1))
@@ -509,7 +523,7 @@ for k, f in enumerate(feats):
     mesh = None
     if mask.sum() >= 2:
         V, F, is_top = heightfield_mesh(mask, top, base - 0.6, G.x0 + j0 * G.res, G.y0 + i0 * G.res, G.res, walls=True)
-        mesh = to_trimesh(V, F, color_vertices(V, is_top), name); stats['lod2' if source == 'lidar' else 'lod1'] += 1
+        mesh = to_trimesh(V, F, color_vertices(V, is_top, wall=wall_rgb(p['name'])), name); stats['lod2' if source == 'lidar' else 'lod1'] += 1
     else:  # tiny footprint: exact extrusion of the polygon
         try:
             polys = [loc] if isinstance(loc, Polygon) else list(loc.geoms)
@@ -517,7 +531,7 @@ for k, f in enumerate(feats):
             if parts:
                 mesh = trimesh.util.concatenate(parts); mesh.apply_translation([0, 0, base - 0.6])
                 mesh = trimesh.Trimesh(vertices=to_export(mesh.vertices), faces=mesh.faces, process=False)
-                mesh.visual.vertex_colors = np.tile(WALL, (len(mesh.vertices), 1)); stats['lod1'] += 1
+                mesh.visual.vertex_colors = np.tile(wall_rgb(p['name']), (len(mesh.vertices), 1)); stats['lod1'] += 1
         except Exception as e:
             log(f'extrude failed for {name}: {e}')
     if mesh is None: stats['skipped'] += 1; continue
@@ -614,6 +628,114 @@ if cloud is not None:
         trees.append(dict(x=float(G.x0 + (j + 0.5) * G.res), y=float(G.y0 + (i + 0.5) * G.res), z=float(DTM_fine[i, j]), height=round(hh, 1), radius=round(r, 1)))
     log(f'trees detected from canopy: {len(trees)}')
 
+# ----------------------------------------------------------------------------- walkways and roads
+# OSM carries the campus path network as centrelines; the scan carries the ground it runs over and the orthophoto shows how
+# wide the paving actually is. Combined they give ribbons that sit on real terrain plus a navigation graph an engine can walk.
+PED_TYPES = {'footway', 'path', 'steps', 'pedestrian', 'cycleway', 'living_street', 'track'}
+DEFAULT_W = {'footway': 1.8, 'path': 1.4, 'steps': 1.8, 'pedestrian': 4.0, 'cycleway': 2.2, 'living_street': 5.0, 'track': 2.5,
+             'service': 4.5, 'residential': 6.5, 'unclassified': 6.0, 'tertiary': 7.5, 'tertiary_link': 6.0, 'secondary': 9.5,
+             'secondary_link': 7.0, 'primary': 11.0, 'primary_link': 8.0, 'trunk': 12.0, 'construction': 3.0}
+SURF_RGB = {'concrete': (196, 192, 184), 'paved': (150, 148, 145), 'asphalt': (92, 92, 95), 'gravel': (168, 158, 140),
+            'ground': (150, 136, 112), 'grass': (150, 176, 108), 'wood': (150, 120, 84), 'paving_stones': (178, 170, 160)}
+
+def grid_at(arr, px, py, gr):
+    ix = np.clip(((np.asarray(px) - gr.x0) / gr.res).astype(np.int64), 0, gr.nx - 1)
+    iy = np.clip(((np.asarray(py) - gr.y0) / gr.res).astype(np.int64), 0, gr.ny - 1)
+    return arr[iy, ix]
+
+def paved_width(mx, my, ux, uy, default, hw):
+    """Walk out along the path normal until the orthophoto turns green: that edge is where paving stops.
+    Returns (width_m, source). Falls back to the typology default where there is no NDVI or no clear edge."""
+    if NDVI is None or not args.path_width_ortho: return default, 'default'
+    if grid_at(NDVI, mx, my, G) > T_VEG: return default, 'canopy'   # the orthophoto sees crown here, not paving — the path is under trees
+    # how far the probe may travel before we assume it escaped onto adjoining paving: generous for a footway in grass
+    # (campus walks run 2-4 m against a 1.8 m default), tight for a road that usually abuts parking or another carriageway
+    cap = min(max(default * (3.0 if hw in PED_TYPES else 1.8), 5.0), 14.0)
+    half = []
+    for sgn in (1.0, -1.0):
+        d = 0.0
+        for step in np.arange(0.5, cap / 2 + 0.25, 0.25):
+            if grid_at(NDVI, mx + sgn * ux * step, my + sgn * uy * step, G) > T_VEG: break
+            d = step
+        half.append(d)
+    w = half[0] + half[1]
+    if w < 0.8 or w > cap * 0.95: return default, 'default'   # ran to the cap: the probe left the path and kept going over adjoining paving
+    return w, 'ortho'
+
+path_scene = trimesh.Scene(); nav_nodes = {}; nav_edges = []; pstats = dict(ways=0, ped_ways=0, length_m=0.0, ped_m=0.0, w_ortho=0, w_canopy=0, w_default=0, steps=0)
+if not args.no_paths:
+    def nid(lon, lat):
+        k = f'{lon:.7f},{lat:.7f}'
+        if k not in nav_nodes: nav_nodes[k] = dict(id=len(nav_nodes), lon=round(lon, 7), lat=round(lat, 7))
+        return nav_nodes[k]['id'], k
+    ribbons = {}
+    for f in feats:
+        p = props_of(f); t = p['tags']; hw = t.get('highway'); g = f['geometry']
+        if not hw or g['type'] != 'LineString' or hw in ('proposed', 'raceway'): continue
+        try: clipped = shape(g).intersection(shapely.box(minLon, minLat, maxLon, maxLat))
+        except Exception: continue
+        if clipped.is_empty: continue
+        pieces = [clipped] if clipped.geom_type == 'LineString' else [q for q in getattr(clipped, 'geoms', []) if q.geom_type == 'LineString']
+        for piece in pieces:
+          ll = np.asarray(piece.coords, float)
+          if len(ll) < 2: continue
+          X, Y = frame.from_lonlat(ll[:, 0], ll[:, 1]); P = np.column_stack([X, Y])
+          seg = np.linalg.norm(np.diff(P, axis=0), axis=1); L = float(seg.sum())
+          if L < 1.0: continue
+          # resample the centreline at ~2 m so the ribbon follows the terrain instead of cutting across it
+          cum = np.concatenate([[0], np.cumsum(seg)]); npts = max(2, int(round(L / 2.0)) + 1)
+          sq = np.linspace(0, L, npts); R = np.column_stack([np.interp(sq, cum, P[:, 0]), np.interp(sq, cum, P[:, 1])])
+          tang = np.gradient(R, axis=0); nrm = np.linalg.norm(tang, axis=1, keepdims=True); tang = tang / np.maximum(nrm, 1e-9)
+          U = np.column_stack([-tang[:, 1], tang[:, 0]])                             # unit normal in the ground plane
+          base_w = DEFAULT_W.get(hw, 3.0)
+          try: base_w = float(t['width']) if t.get('width') else base_w
+          except ValueError: pass
+          ws, srcs = [], []
+          for k in np.linspace(0, len(R) - 1, min(12, len(R))).astype(int):          # a dozen probes, median wins
+              w_, s_ = paved_width(R[k, 0], R[k, 1], U[k, 0], U[k, 1], base_w, hw)
+              ws.append(w_); srcs.append(s_)
+          seen_ = np.array(ws)[np.array(srcs) == 'ortho']
+          width = float(np.median(seen_)) if len(seen_) >= max(2, len(ws) // 3) else base_w   # trust the ortho only if a third of the probes could actually see paving
+          src = 'ortho' if len(seen_) >= max(2, len(ws) // 3) else ('canopy' if srcs.count('canopy') > len(ws) // 2 else 'default')
+          pstats[{'ortho': 'w_ortho', 'canopy': 'w_canopy', 'default': 'w_default'}[src]] += 1
+          pz = grid_at(DTM_fine, R[:, 0], R[:, 1], G).astype(float)               # NOTE: never rebind x/y/z/c/m here — those hold the LiDAR cloud and are still needed by the scan-surface export
+          pz = ndimage.uniform_filter1d(pz, size=min(5, len(pz)), mode='nearest') + 0.06   # smooth the grade, lift off the terrain
+          left = R + U * (width / 2); right = R - U * (width / 2)
+          V = np.empty((2 * len(R), 3)); V[0::2, :2] = left; V[1::2, :2] = right; V[0::2, 2] = pz; V[1::2, 2] = pz
+          idx = np.arange(len(R) - 1) * 2
+          F = np.vstack([np.column_stack([idx, idx + 1, idx + 3]), np.column_stack([idx, idx + 3, idx + 2])])
+          surface = t.get('surface') or ('concrete' if hw in PED_TYPES else 'asphalt')
+          rgb = SURF_RGB.get(surface, (140, 138, 134))
+          key = f'{"walk" if hw in PED_TYPES else "road"}_{surface}'
+          ribbons.setdefault(key, []).append((to_export(V), F, rgb))
+          # navigation graph: one edge per original OSM segment, so junction topology survives
+          for a, b in zip(ll[:-1], ll[1:]):
+              ia, ka = nid(a[0], a[1]); ib, kb = nid(b[0], b[1])
+              ax_, ay_ = frame.from_lonlat(a[0], a[1]); bx_, by_ = frame.from_lonlat(b[0], b[1])
+              za, zb = float(grid_at(DTM_fine, ax_, ay_, G)), float(grid_at(DTM_fine, bx_, by_, G))
+              nav_nodes[ka].update(x=round(float(ax_), 2), y=round(float(ay_), 2), z=round(za, 2))
+              nav_nodes[kb].update(x=round(float(bx_), 2), y=round(float(by_), 2), z=round(zb, 2))
+              dl = float(np.hypot(bx_ - ax_, by_ - ay_))
+              if dl < 0.05: continue
+              nav_edges.append(dict(a=ia, b=ib, m=round(np.hypot(dl, zb - za), 2), t=hw, w=round(width, 1), s=surface,
+                                    foot=hw in PED_TYPES or hw in ('service', 'residential', 'living_street', 'unclassified'),
+                                    steps=hw == 'steps', rise=round(zb - za, 2), name=t.get('name')))
+          pstats['ways'] += 1; pstats['length_m'] += L
+          if hw in PED_TYPES: pstats['ped_ways'] += 1; pstats['ped_m'] += L
+          if hw == 'steps': pstats['steps'] += 1
+    for key, parts in ribbons.items():
+        Vs, Fs, off = [], [], 0
+        for V, F, rgb in parts: Vs.append(V); Fs.append(F + off); off += len(V)
+        V = np.vstack(Vs); F = np.vstack(Fs)
+        pm = trimesh.Trimesh(vertices=V, faces=F, process=False)
+        pm.visual.vertex_colors = np.tile(np.array([*parts[0][2], 255], np.uint8), (len(V), 1))
+        path_scene.add_geometry(pm, geom_name=key, node_name=key)
+    log(f"paths: {pstats['ways']} ways ({pstats['ped_ways']} pedestrian), {pstats['length_m'] / 1000:.1f} km "
+        f"({pstats['ped_m'] / 1000:.1f} km on foot); widths: {pstats['w_ortho']} measured from the orthophoto, "
+        f"{pstats['w_canopy']} under canopy (typology default), {pstats['w_default']} default; {pstats['steps']} stair runs; "
+        f"graph {len(nav_nodes)} nodes / {len(nav_edges)} edges")
+
+
 # ----------------------------------------------------------------------------- exports
 def export(scene_or_mesh, name):
     path = os.path.join(args.out, name + '.glb'); scene_or_mesh.export(path)
@@ -624,6 +746,15 @@ def export(scene_or_mesh, name):
 
 if stats['buildings']:
     export(scene_b, 'tulane_buildings')
+
+if len(path_scene.geometry):
+    export(path_scene, 'tulane_paths')
+    nodes_out = sorted(nav_nodes.values(), key=lambda n: n['id'])
+    with open(os.path.join(args.out, 'tulane_paths.json'), 'w', encoding='utf-8') as fh:
+        json.dump(dict(frame='metres; x east (or along St. Charles with --align-st-charles), y north, z = ground elevation (NAVD88); glTF uses (x, z, -y)',
+                       source='OpenStreetMap centrelines (ODbL) draped on the USGS 2021 LiDAR ground surface; widths measured from the orthophoto where it could see the paving edge',
+                       stats=pstats, nodes=nodes_out, edges=nav_edges), fh)
+    log(f'wrote tulane_paths.json ({len(nodes_out)} nodes, {len(nav_edges)} edges)')
 
 # terrain
 mask_t = np.ones(DTM.shape, bool)
@@ -687,6 +818,6 @@ try:
 except Exception as e:
     log(f'preview skipped: {e}')
 
-stats.update(trees=len(trees), lidar=cloud is not None, orthophoto=naip is not None, frame='aligned to St. Charles' if args.align_st_charles else 'north-up')
+stats.update(paths=pstats, trees=len(trees), lidar=cloud is not None, orthophoto=naip is not None, frame='aligned to St. Charles' if args.align_st_charles else 'north-up')
 json.dump(stats, open(os.path.join(args.out, 'model_stats.json'), 'w'), indent=1)
 log('done', stats)

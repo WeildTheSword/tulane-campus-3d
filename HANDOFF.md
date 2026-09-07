@@ -6,10 +6,17 @@ Living resume packet. Update in place; don't recreate.
 
 **Goal:** Build a to-scale, photoreal-as-public-data-allows 3D model of Tulane's uptown campus (OSM footprints + USGS 3DEP 2021 LiDAR + NAIP 0.3 m orthophoto) and get it into the voxel viewer / game engines. User's ask (2026-09-06): "Do the whole thing. Use the most advanced scanning and method to map the campus and make the environment look exactly like Tulane's campus."
 
-**Task in flight:** none. Everything is built and published; the full-extent 0.5 m build finished 23:58 (numbers in Docs/accuracy-plan.md §2). Next work items are Docs/accuracy-plan.md §4 (exact-polygon walls first). Committed on branch `lidar-accuracy-upgrade` (5cf05bd, 2026-09-07); `main` still at 00dd9a3 — fast-forward when the user wants.
+**Task in flight:** none. Path network built and published; full-extent build complete (4,089 buildings, 12,000 trees, 569 path ways / 2,447 graph edges). Everything since commit 3444e2c is uncommitted — offer to commit.
 
 ## Status
 
+- DONE (2026-09-07) — **walkway/road network**: `build_model.py` clips OSM highway centrelines to the bbox, resamples at 2 m, drapes them on `DTM_fine`, measures width from the orthophoto (NDVI edge probe, refuses under canopy), and writes `tulane_paths.glb` (ribbons by surface) + `tulane_paths.json` (nav graph: nodes x/y/z/lon/lat, edges with m/type/width/surface/rise/foot/steps). Full extent: 569 ways, 77.7 km, 17.3 km on foot, 1,988 nodes / 2,447 edges; core graph 98% one connected component. Toggle **Paths** in the page. Disable with `--no-paths`.
+- DONE — **facades from photos**: `Docs/facade-method.md`, `data/facades/howard_tilton.json` (judged), plus `facade_extract.py` — deterministic, no API: wall dE 3.8, window pitch 2%, glass misses (dE ~12). 23 s/building, $0.
+- KNOWN LIMITS — orthophoto cannot measure path width under canopy (105 ways); OSM maps no `highway=steps` in the bbox; glass colour needs a vision pass.
+- WATCH OUT — the paths code runs at module level where the LiDAR arrays `x,y,z,c,m` are live; binding `z` there broke the scan-surface export once. Names are now `pz/npts/tang/pm` with a comment; an AST audit script is in the session log if it recurs.
+
+- DONE — facade method researched (25-agent workflow, all verified): `Docs/facade-method.md`; Howard-Tilton spec `data/facades/howard_tilton.json` (judged two-pass; wall #a8a49c precast, trim #5a4437, glass #383836, frames #2f2a25, 2014 addition crown) with photos + licences under `data/photos/howard_tilton/` (gitignored, re-fetchable).
+- DONE — `pack_web.py`: cap-then-strip decimation (HT keeps 651/652 wall faces; page 11.48 MB), `phi/base/h` extras, `--facades`; `viewer/scan_template.html`: procedural facade shader + Facade button; `build_model.py`: private wall-top vertices, `wall_rgb()` from specs.
 - DONE — research: `Docs/lidar-sources.md` (no better LiDAR exists; 2025 LaDOTD 0.15 m RGBI ortho + city footprints adopted). Workflow wf_38394a7c-3aa hit the session limit after 24/75 agents; its journal was salvaged by hand; audit lanes (ground-truth heights, code audit) never ran — see accuracy-plan §4.
 - DONE — external validation: registration 0 m (footprints) / +0.5 m (ortho); FEMA USA Structures +1.9 m median offset, MAD 0.6 m; city layer: 201 missing / 120 stale OSM buildings.
 - DONE — builder v4: single-return + canopy-ratio + NDVI(Otsu) evidence, RANSAC planes, tower-safe ceiling (`height:max`), city-footprint merge with demolished/post-scan logic, orphan filters, watershed crowns, UTM-referenced ortho sampling.

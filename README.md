@@ -60,6 +60,33 @@ Units are meters, Y up; `--align-st-charles` puts St. Charles Avenue along +X so
 - **Unreal**: File → Import (glTF), or Blender → FBX.
 - Each building node carries its OSM name, so doors, colliders and quest triggers can be scripted per building.
 
+## Walkways, roads and the navigation graph
+
+`build_model.py` also builds the campus path network (disable with `--no-paths`):
+
+- OSM centrelines (footway, path, steps, cycleway, pedestrian, plus roads) are clipped to the bbox, resampled at 2 m and
+  **draped on the LiDAR ground surface**, so paths follow real grade instead of cutting through it.
+- Width is **measured from the orthophoto** where it can see the paving edge: a probe walks out along the path normal until
+  NDVI says vegetation. Where the path runs under tree canopy the probe refuses and the typology default is used — on this
+  campus that is most walkways, and the build log reports the three cases separately.
+- `out/tulane_paths.glb` holds ribbons grouped by surface; `out/tulane_paths.json` is a navigation graph
+  (nodes with local x/y/z and lon/lat, edges with length, type, width, surface, rise, and `foot`/`steps` flags) an engine
+  can path-find on directly.
+
+NDVI is validated against LiDAR-detected trees vs building roofs: it separates canopy from roof at 88% (NAIP) / 86% (2025 ortho).
+
+## Facades from public photos
+
+`Docs/facade-method.md` describes the per-building method (name/Wikidata → Wikimedia Commons; address/coords → street imagery;
+vision extraction with measured colours) and its proof on Howard-Tilton Memorial Library. A spec lives in `data/facades/<slug>.json`;
+its `render` block drives two things:
+
+- the page: `pack_web.py` ships each named building's facade frame (`phi`, `base`) and the spec, and `viewer/scan_template.html`
+  paints walls procedurally in the fragment shader (storeys, piers, window cells, storefront, terrace, crown) — toggle **Facade**;
+- the engine GLB: `build_model.py` gives walls private top vertices and paints them with the spec's wall colour.
+
+`pack_web.py` decimates with a floor cap so walls stay vertical (plain quadric decimation collapsed them into the roof).
+
 ## Making it more photoreal
 
 - Stream Google's Photorealistic 3D Tiles with Cesium for Unity/Unreal for live photogrammetry (API key + attribution; can't be baked into a build).

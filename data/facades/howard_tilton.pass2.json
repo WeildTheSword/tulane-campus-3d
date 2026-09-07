@@ -1,0 +1,251 @@
+{
+ "building": {
+  "name": "Howard-Tilton Memorial Library",
+  "address": "7001 Freret St, New Orleans, LA 70118",
+  "osm": "way/327443277",
+  "wikidata": "Q16466615",
+  "footprint_m": {
+   "long_side": 87.0,
+   "short_side": 46.0,
+   "long_axis_bearing_deg": 30,
+   "faces": {
+    "SSW_46m": "Freret St frontage (sidewalk + iron fence directly in front)",
+    "ESE_87m": "campus side: Newcomb Place / drop-off loop; loggia face; main entrance near the Freret corner",
+    "NNE_46m": "rear, Zimpel St alignment / The Commons",
+    "WNW_87m": "Audubon St side: parking lot + houses"
+   }
+  },
+  "lidar": {
+   "height_m": 28.4,
+   "height_max_m": 32.6,
+   "roof": "flat, single plane; 2025 ortho shows white membrane largely covered by PV arrays + 3 rooftop enclosures"
+  }
+ },
+ "method": "Independent second pass. All 25 files in data/photos/howard_tilton (24 *.jpg + Tulane_U_Mch2013_HT_Library_Back.JPG) viewed, plus the 4 rights-reserved Tulane campus-map references (used as visual reference only). Colours = median RGB / CIELAB of hand-placed boxes verified on a contact sheet, plus k-means separation of mixed zones and pixel filters (sky-exclusion, red-only, bright-only); scripts in scratchpad/ht2/{measure.py,kmeans.py}. Albedo estimates calibrated against a white food-truck side in the same light (2019 photo) and a white pickup (2018 overcast). Bay counts from a projective fit of loggia-fin x-positions in the Feb-2026 photo (fins at x=1645,1302,1054,868,723,608,513,433,365 -> predicted 308,258,214 -> 11 bays to the far corner), the original Newcomb Place elevation drawing (11 bays, 6 windows per bay) and the 2025 ortho (11 teeth on the ESE edge).",
+ "storeys_total": 6,
+ "storeys": [
+  {
+   "n": 1,
+   "height_m_est": 4.8,
+   "treatment": "ground floor on a ~1.0 m exposed-aggregate plinth; continuous bronze-tinted storefront recessed ~1.5 m behind wide precast piers under a dark soffit; precast planter boxes on the podium"
+  },
+  {
+   "n": 2,
+   "height_m_est": 4.0,
+   "treatment": "fin floor: projecting precast fins + wide structural piers; tall narrow windows"
+  },
+  {
+   "n": 3,
+   "height_m_est": 4.0,
+   "treatment": "fin floor, windows stack over storey 2; dark red-brown spandrel strip at the floor line recessed behind the fins"
+  },
+  {
+   "n": 4,
+   "height_m_est": 4.2,
+   "treatment": "terrace floor: continuous glazing set ~1.5-2 m back behind a precast balustrade (rail on squat posts); deep flat roof slab overhang with pale fascia ~0.7 m and exposed beam ends (original roof, now the cornice under the addition, top at ~17.7 m)"
+  },
+  {
+   "n": 5,
+   "height_m_est": 5.3,
+   "treatment": "2014-16 addition: light silver-grey metal-panel box; ESE face = 11-bay deep loggia"
+  },
+  {
+   "n": 6,
+   "height_m_est": 5.4,
+   "treatment": "as storey 5 (one 2-storey volume, ~10.7 m incl. coping)"
+  }
+ ],
+ "facade": {
+  "wall": {
+   "material": "precast concrete with exposed light aggregate (fine pebbly / lightly sandblasted finish, buff-white matrix with grey-cream speckle), expressed as ~1.2 m wide structural piers and ~0.5 m projecting vertical fins with flat recessed panels; same on all four faces of storeys 1-4",
+   "color_hex": "#c2beb6",
+   "color_hex_shade": "#9c9890",
+   "color_lab": [
+    77.2,
+    0.3,
+    4.6
+   ],
+   "color_hex_sunlit_in_photo": "#e8e2da",
+   "measured": [
+    "2007 sunlit pier face (box 940,600-975,780) #e8e2da Lab(90.1,0.7,4.6)",
+    "2001 sunlit pier #ecedda / #cccebc (green-cast photo)",
+    "Feb-2026 sunlit pier: bright px #dbd3d2 Lab(85.2,2.6,1.5), mid #c4bdbb, k-means #bfb7b5",
+    "2018 overcast piers (bright px) #adaba4 Lab(70.0,-0.6,3.9)",
+    "2019 even light panels/fins #ada9a0 Lab(69.2,-0.1,5.1) / #9a9891; white food-truck side in same light #e3e7e2 -> linear ratio 0.55 -> albedo ~0.47-0.50 -> sRGB ~#c2beb6"
+   ],
+   "vs_model_constant": "build_model WALL #d6cec2 Lab(83,0.6,7.2) is lighter and yellower; real wall is a greyer, slightly darker off-white (b* ~4.5) with strong vertical fin shadows",
+   "confidence": 0.8
+  },
+  "trim": {
+   "material": "dark red-brown (oxblood) bands: ~0.3-0.4 m spandrel strip recessed behind the fins at the storey-3/4 floor line (under the terrace slab) and a continuous soffit/fascia strip over the ground-floor storefront; on the slit-window faces the bottom ~20-25% of every narrow light is a red-brown panel (2007, still present Nov 2021 on the Freret face). Pale precast balustrade at storey 4 and the roof-slab fascia are wall-coloured.",
+   "color_hex": "#5b4538",
+   "color_hex_shade": "#3a2c26",
+   "measured": [
+    "2019 even light, red-pixel median n=10336 #635041 Lab(35.5,5.5,11.8)",
+    "Feb-2026 ground-floor lintel strip (shade) #453027 Lab(21.9,8.5,9.3)",
+    "2007 slit sill panels (in recess shade) #362e30 / #2d2626",
+    "Nov-2021 sill panels (backlit, overexposed) #826959"
+   ],
+   "confidence": 0.65
+  },
+  "glazing": {
+   "tint_hex": "#3a3936",
+   "frame_hex": "#2f2a25",
+   "notes": "upper windows: neutral dark-grey glass in dark-bronze anodised frames (reads sky-blue in direct sun, near-black in shade); ground floor: bronze/amber-tinted storefront that reads tan in sun with interior visible",
+   "ground_floor": {
+    "tint_hex": "#5a4f3d",
+    "frame_hex": "#2a2420",
+    "description": "continuous full-height storefront between piers, mullions ~1.4-1.6 m (4-6 lights per bay), recessed ~1.5 m under a dark soffit, beige curtains inside",
+    "measured": [
+     "2007 sun #776e57 / #807356",
+     "2016 Mapillary #4c4d40",
+     "Feb-2026 deep shade #322c27",
+     "2019 #2d2924"
+    ]
+   },
+   "terrace_floor": {
+    "tint_hex": "#2e3238",
+    "description": "storey 4: continuous glazing behind the balustrade; reads as a dark void under the overhang"
+   },
+   "addition": {
+    "loggia_glazing_hex": "#2f3e39",
+    "slot_glazing_hex": "#68717a"
+   },
+   "pattern": {
+    "storeys": [
+     2,
+     3
+    ],
+    "structural_bays_per_side": {
+     "ESE_87m": 11,
+     "WNW_87m": 11,
+     "SSW_46m": 6,
+     "NNE_46m": 6,
+     "module_m": 7.9,
+     "confidence_long": 0.85,
+     "confidence_short": 0.5
+    },
+    "windows_per_structural_bay": 6,
+    "ESE_campus_face": {
+     "layout": "6 evenly spaced tall windows per bay per fin floor (66 per floor), each flanked by a ~0.5 m fin; transom ~1/3 down",
+     "window_w_m": 0.75,
+     "window_h_m": 3.3,
+     "window_aspect": "1:4.4",
+     "pitch_m": 1.3
+    },
+    "SSW_NNE_WNW_faces": {
+     "layout": "3 pairs of narrow lights per bay (6 lights) with a narrow fin inside each pair and a wider fin between pairs; red-brown panel in the bottom ~20-25% of each light; a few positions hold pale louvred vents",
+     "pair_unit_w_m": 0.9,
+     "light_w_m": 0.4,
+     "light_h_m": 3.3,
+     "window_aspect_single_light": "1:8",
+     "pair_pitch_m": 2.6
+    },
+    "stacked": "storey-2 and storey-3 windows align vertically with a ~0.3 m spandrel/notch at the floor line",
+    "bays_per_side_windows": {
+     "ESE_87m": 66,
+     "WNW_87m": 66,
+     "SSW_46m": 36,
+     "NNE_46m": 36
+    }
+   },
+   "measured": [
+    "2007 sunlit face dark-glass px #2a2b2b, slit glass #393630",
+    "2019 window #4a4a48",
+    "Feb-2026 upper glass cluster #2f3a4a (sky reflection)",
+    "2001 #101606"
+   ],
+   "confidence": 0.7
+  },
+  "base": {
+   "material": "exposed-aggregate precast plinth / podium ~1.0 m high (coarser pebble texture than the walls) with a projecting slab edge; continuous precast planter boxes on the podium in front of the storefront; entrance steps + ramp with metal rails on the ESE side near the Freret corner; lawn and sidewalk; iron picket fence along Freret and Newcomb Place",
+   "color_hex": "#b7ada0",
+   "color_hex_shade": "#7a736a",
+   "podium_height_m": 1.0,
+   "measured": [
+    "Feb-2026 sunlit plinth bright px #c0a89b Lab(70.6,6.6,9.9)",
+    "2016 Mapillary plinth #979789 / #7e7c6d, planters #adab9b (green-cast camera)",
+    "2001 sunlit #f6f4dd (clipped)"
+   ],
+   "confidence": 0.7
+  },
+  "roof_edge": {
+   "original_cornice_at_m": 17.7,
+   "description": "original flat roof slab projects ~1.5-2 m beyond the storey-4 glazing with a pale precast fascia ~0.6-0.7 m tall, exposed beam ends and a dark soffit; the balustrade (~1.0 m) sits ~1 m inside the slab edge. This slab is now a continuous cornice band under the addition; the addition wall sits ~1-1.5 m inside it on the WNW/SSW/NNE sides (light strip visible in the ortho), while the ESE loggia fins reach the slab edge.",
+   "fascia_hex": "#bdb9b1",
+   "soffit_hex": "#4a3f38",
+   "addition_roof_edge": "flush thin light-metal coping/fascia (~0.4 m), no parapet upstand, no overhang; roof = white membrane with large PV arrays and 2-3 mechanical enclosures (LiDAR height:max 32.6 m)",
+   "addition_coping_hex": "#cfd4da",
+   "confidence": 0.8
+  },
+  "upper_addition": {
+   "present": true,
+   "storeys": 2,
+   "which_storeys": [
+    5,
+    6
+   ],
+   "built": "2014-2016 (Dec-2014 photo: 2-storey frame under red weather barrier)",
+   "height_m_est": 10.7,
+   "material": "flat light silver-grey aluminium (composite) panels with vertical joints ~1.0-1.2 m, satin finish that reflects the sky (reads white in direct sun, pale blue-grey in overcast/shade). ESE (campus) face = 11-bay loggia: deep (~2.5 m) white/light-grey aluminium fin frames with fastener rows along the edges, dark-charcoal ribbed/perforated metal jambs and soffits inside the recesses, dark-tinted curtain-wall glazing on the back wall (both storeys). SSW (Freret) face: flat panel with a group of 4 full-height slot windows near the east end and, probably, 2-3 loggia-type recessed bays at the west end. WNW face: flat panel with 2-3 slots. NNE face: flat panel with a few slots (not directly verified).",
+   "color_hex": "#c8cdd3",
+   "color_hex_sunlit_sky_reflection": "#c0d3e9",
+   "color_hex_overcast": "#b5bfc8",
+   "color_hex_shade_skylit": "#98aac8",
+   "loggia_frame_hex": "#e6e8ea",
+   "loggia_recess_hex": "#23262b",
+   "loggia_recess_hex_shade": "#0c1019",
+   "loggia_glazing_hex": "#2f3e39",
+   "slot_glazing_hex": "#68717a",
+   "measured": [
+    "2018 overcast panel bright px #b5bfc8 Lab(76.8,-1.7,-5.7) (white pickup side in same frame #9b9da1 -> panel is brighter than white paint = light + specular sky)",
+    "Apr-2019 sunlit panel (sky-excluded) #c0d3e9 Lab(83.8,-1.9,-13.0)",
+    "Feb-2026 fascia/fin sky-lit #98aac8 / #a0b1cd",
+    "Feb-2026 recess interior #0c1019",
+    "Feb-2026 loggia glazing #2f3e39",
+    "2019 panels #cdd9e8"
+   ],
+   "confidence": 0.85
+  }
+ },
+ "per_attribute_confidence": {
+  "wall_material": 0.9,
+  "wall_colour": 0.8,
+  "trim_colour": 0.65,
+  "trim_sill_panels_persist_on_Freret_face": 0.8,
+  "glazing_colour": 0.7,
+  "window_pattern_ESE": 0.75,
+  "window_pattern_other_faces": 0.6,
+  "structural_bays_long_sides": 0.85,
+  "structural_bays_short_sides": 0.5,
+  "base": 0.7,
+  "roof_edge": 0.8,
+  "addition_present_and_storeys": 0.95,
+  "addition_colour": 0.75,
+  "addition_ESE_loggia_11_bays": 0.9,
+  "addition_SSW_face_layout": 0.5,
+  "addition_WNW_NNE_layout": 0.6,
+  "storey_heights": 0.5,
+  "face_orientation_labels": 0.85
+ },
+ "render_recommendations": [
+  "split the wall material at z~17.7 m: lower = off-white precast #c2beb6 with a fin-shadow texture (fins every ~1.3 m on ESE, paired slits elsewhere), upper = light silver-grey metal #c8cdd3 with some specular/sky reflection",
+  "ESE face of the addition: 11 dark recessed bays (#23262b interior, #e6e8ea fins), not a flat panel",
+  "ground floor: dark bronze storefront recessed behind piers on a 1 m plinth with planters",
+  "dark red-brown strips at the storey-3/4 line and over the storefront; red-brown sill panels on slit faces",
+  "terrace balustrade band + projecting pale cornice slab at the top of storey 4"
+ ],
+ "second_pass_disagreements_with_pass1": [
+  "1. trim / sill panels (pass 1 sill_band false, 'not seen after the 2013-14 reglazing'): DISAGREE. Nov-2021 Freret-face photo (-04) at 2x shows a red-brown panel in the bottom ~20-25% of every narrow light (measured #826959 backlit), exactly as in Dec-2007. The 2019 NNE/WNW-face photo lacks them, so it is face-specific: keep the panels on the SSW (Freret) face at least.",
+  "2. glazing.pattern on the ESE face (pass 1: one rhythm everywhere, 3 units per 7.9 m bay, pitch 2.6 m, window 0.85 m, 33 per long side): DISAGREE for ESE. Feb-2026 4x zoom and the Newcomb Place elevation drawing show 6 evenly spaced tall windows per bay (pitch ~1.3 m, window ~0.75 m, fins ~0.5 m) -> 66 per floor on ESE. On the slit faces the 0.85 m unit is a PAIR of ~0.4 m lights; '33' is consistent only if a pair counts as one window.",
+  "3. upper_addition SSW (Freret) face layout (pass 1: flat panel + 4-5 slots only; 'other three edges are plain' settled by the ortho): PARTIAL DISAGREE. Tulane dusk photo (restricted_reference/c3d_HTML_pic_3.jpg) shows flat panel -> 4 slots -> 2-3 deep loggia-type recessed bays toward the west end; the same 2-3-bay run next to a slotted flat face appears in Zimple_Street_2018 and Newcomb_Blvd_2019 18/19. The ortho cannot exclude recesses because the loggia has a continuous top fascia. West-end recesses on the Freret face at 0.5 confidence.",
+  "4. Face labels of Zimple_Street_2018 and the 29-March-2019 portrait (pass 1: NNE 'Zimple' face): DISAGREE (0.6). Zimpel St dead-ends at Audubon St west of the building; from there only the WNW 87 m face is frontal. Both photos = WNW flank; the NNE face is unverified in the set.",
+  "5. ground-floor glazing tint (pass 1 #312a25 from a deep-shade sample): MINOR. Storefront reads tan/bronze in sun (2007 #776e57 / #807356, 2016 #4c4d40); use #5a4f3d and let the recess shadow darken it.",
+  "6. window frame hue (pass 1 #1a1a14 from a clipped 2001 sample): MINOR. 2007 and Feb-2026 zooms show dark-bronze anodised frames -> #2f2a25.",
+  "7. trim base colour (pass 1 #4a3028 = Feb-2026 lintel in shadow): MINOR. Even-light 2019 sample #635041; base #5b4538, shade #3a2c26.",
+  "8. addition panel base colour (pass 1 #b4bec6 overcast, sunlit #c0d3e9): MINOR / material-model. Blue is specular sky reflection on satin metal, not pigment; base should be a lighter neutral grey (#c8cdd3) with specularity.",
+  "9. colour_measurements labelling (pass 1 'roof-slab fascia (original), sunlit' #766254 marked reliable): DISAGREE. That box is the shaded soffit/brown band; the sky-excluded bright pixels give #bdbec0 (pale fascia). 'terrace balustrade rail' #3a4057 and 'ADDITION loggia fin, sunlit face' #0c121e are likewise mis-hits (flagged unreliable).",
+  "10. storey heights (pass 1 sums to 27.3 m vs LiDAR 28.4): MINOR. Photo proportions put the original at ~17.7 m and the addition at ~10.7 m."
+ ],
+ "second_pass_agreements_with_pass1": "wall colour (#c2beb6 vs #c0bdb5), wall material, 11 structural bays on the long sides, ESE loggia of 11 bays only on the ESE face, 6 storeys = 4 original + 2 addition, oxblood band description, plinth/planters, roof-slab cornice and flush addition coping, addition setback on the non-loggia sides."
+}
