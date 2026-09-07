@@ -10,7 +10,9 @@ items = r.json().get('items', [])
 if a.project: items = [i for i in items if a.project.lower() in (i.get('title') or '').lower()]
 if not items: sys.exit('no LiDAR tiles returned for this bbox — try https://apps.nationalmap.gov/downloader/ (Elevation Source Data) or Louisiana\'s atlas.ga.lsu.edu')
 proj = {}
-for i in items: proj.setdefault(i.get('title', '?').split(' ')[0], []).append(i)
+def project_of(item):  # title looks like 'USGS Lidar Point Cloud LA_2021GreaterNewOrleans_C22 w0777n3314' -> the project id is the 5th word
+    w = (item.get('title') or '?').split(' '); return w[4] if len(w) > 4 else w[0]
+for i in items: proj.setdefault(project_of(i), []).append(i)
 print(f'{len(items)} tiles from {len(proj)} project(s):')
 for k, v in proj.items(): print(f'  {k}: {len(v)} tiles, published {v[0].get("publicationDate")}, {sum((i.get("sizeInBytes") or 0) for i in v) / 1e6:.0f} MB, e.g. {v[0].get("title")}')
 if a.list: sys.exit(0)

@@ -7,9 +7,10 @@ q = f'''[out:json][timeout:180];
 ( way["building"]({b}); relation["building"]({b}); way["highway"]({b}); way["railway"="tram"]({b}); node["natural"="tree"]({b});
   way["leisure"]({b}); way["landuse"="grass"]({b}); way["amenity"="parking"]({b}); way["natural"="water"]({b}); );
 out body; >; out skel qt;'''
-for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']:
+HEADERS = {'User-Agent': 'tulane-campus-3d/1.0 (https://github.com/tulane-campus-3d)'}  # overpass-api.de answers 406 without a UA
+for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.osm.ch/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']:
     try:
-        r = requests.post(url, data={'data': q}, timeout=300); r.raise_for_status(); data = r.json(); break
+        r = requests.post(url, data={'data': q}, headers=HEADERS, timeout=300); r.raise_for_status(); data = r.json(); break
     except Exception as e:
         print('overpass mirror failed:', url, e); time.sleep(3)
 else:

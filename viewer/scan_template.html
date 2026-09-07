@@ -1,0 +1,231 @@
+<title>Tulane Uptown Scan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --green:#006747; --green-ink:#0a3b2b; --blue:#418fde; --paper:#eef0e9; --paper-2:#e2e6dc; --ink:#132019; --muted:#68736c; --rule:#c9d0c6;
+    --sky:#c9dbe7;
+    --display:"Archivo","Helvetica Neue",Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--sky);color:var(--ink);font-family:var(--display);-webkit-text-size-adjust:100%}
+  #app{position:fixed;inset:0}
+  canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+  canvas#c:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
+  .plate{position:absolute;background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:0 1px 0 #fff inset,0 6px 18px rgba(19,32,25,.18)}
+  .title{left:14px;top:max(14px,env(safe-area-inset-top));padding:12px 14px 11px;max-width:min(360px,calc(100vw - 28px));pointer-events:none;user-select:none}
+  .title .eyebrow{font:500 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin:0 0 7px}
+  .title h1{margin:0;font:800 22px/1.02 var(--display);letter-spacing:-.02em;text-wrap:balance;color:var(--green-ink)}
+  .title p{margin:6px 0 0;font:400 12.5px/1.35 var(--display);color:var(--muted)}
+  .stamp{left:14px;bottom:max(14px,env(safe-area-inset-bottom));padding:10px 12px;font:400 11px/1.5 var(--mono);color:var(--ink);pointer-events:none;user-select:none;font-variant-numeric:tabular-nums;max-width:min(420px,calc(100vw - 28px))}
+  .stamp dl{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:1px}
+  .stamp dt{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;padding-top:2px}
+  .stamp dd{margin:0}
+  .stamp .hdr{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:5px;margin-bottom:6px;font-weight:500}
+  .dock{position:absolute;right:14px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+  .btn{font:600 12px/1 var(--display);letter-spacing:.01em;background:var(--paper);color:var(--green-ink);border:1px solid var(--rule);padding:9px 11px;min-width:44px;min-height:38px;cursor:pointer;box-shadow:0 1px 0 #fff inset,0 3px 10px rgba(19,32,25,.14);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn:hover{background:#fff}
+  .btn:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+  .btn.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn .k{font:500 11px/1 var(--mono);opacity:.75}
+  .row{display:flex;gap:6px}
+  .tip{position:absolute;transform:translate(-50%,-100%);background:var(--ink);color:#fff;padding:8px 10px;font:600 12.5px/1.25 var(--display);pointer-events:none;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .tip small{display:block;font:400 11px/1.4 var(--mono);color:#bcd3c6;margin-top:3px;font-variant-numeric:tabular-nums}
+  .tip:after{content:"";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:var(--ink)}
+  #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .lbl{position:absolute;left:0;top:0;transform:translate(-50%,-100%);font:600 11px/1.15 var(--display);color:var(--green-ink);background:rgba(238,240,233,.9);padding:3px 6px;border:1px solid var(--rule);white-space:nowrap;opacity:0;transition:opacity .2s;text-wrap:balance;max-width:180px;text-align:center}
+  .lbl.on{opacity:1}
+  .hint{position:absolute;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 12px;font:400 12px/1.3 var(--display);white-space:nowrap;max-width:calc(100vw - 28px);overflow:hidden;text-overflow:ellipsis;transition:opacity .6s}
+  .hint.gone{opacity:0}
+  .load{position:absolute;inset:0;display:grid;place-items:center;background:var(--sky);z-index:5;transition:opacity .5s}
+  .load.gone{opacity:0;pointer-events:none}
+  .load .box{background:var(--paper);border:1px solid var(--rule);padding:18px 22px;min-width:260px;text-align:center}
+  .load .box b{display:block;font:800 16px/1.1 var(--display);color:var(--green-ink)}
+  .load .box span{display:block;margin-top:8px;font:400 11.5px/1.4 var(--mono);color:var(--muted)}
+  .load .bar{height:4px;background:var(--paper-2);margin-top:12px;overflow:hidden}
+  .load .bar i{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
+  .fitkey{right:14px;top:max(14px,env(safe-area-inset-top));padding:8px 10px;font:500 10.5px/1.3 var(--mono);display:grid;grid-template-columns:repeat(4,1fr);gap:2px 6px;min-width:190px}
+  .fitkey b{grid-column:1/-1;font:600 11px/1.2 var(--display);color:var(--green-ink);margin-bottom:3px}
+  .fitkey i{grid-column:1/-1;height:8px;background:linear-gradient(90deg,#2e7d4f,#d9c341 45%,#d0541f 75%,#7a1f1f)}
+  .fitkey span{color:var(--muted);font-variant-numeric:tabular-nums}
+  @media (max-width:640px){ .stamp{display:none} .title h1{font-size:19px} }
+  @media (prefers-reduced-motion:reduce){ .hint,.load,.lbl,.load .bar i{transition:none} }
+</style>
+
+<div id="app">
+  <canvas id="c" tabindex="0" aria-label="3D laser scan of the Tulane uptown campus"></canvas>
+  <div id="labels"></div>
+  <header class="plate title">
+    <p class="eyebrow">Airborne LiDAR · Orthophoto · Survey footprints</p>
+    <h1>Tulane Uptown, as scanned</h1>
+    <p>Every wall stands at its laser-measured height; roofs are the scan itself; the ground is the aerial photo. Tap a building for its name.</p>
+  </header>
+  <div class="plate stamp" aria-label="Survey data">
+    <div class="hdr"><span>SURVEY STAMP</span><span>NAVD88 · UTM 15N · metres</span></div>
+    <dl>
+      <dt>Point cloud</dt><dd>USGS 3DEP LA_2021GreaterNewOrleans_C22 · ≈14.5 pts/m²</dd>
+      <dt>Imagery</dt><dd id="stImagery">aerial orthophoto</dd>
+      <dt>Footprints</dt><dd>© OpenStreetMap contributors (ODbL)</dd>
+      <dt>Buildings</dt><dd id="stBuild">—</dd>
+      <dt>Trees</dt><dd id="stTrees">—</dd>
+      <dt>Roof fit</dt><dd id="stFit">—</dd>
+      <dt>Frame</dt><dd>St. Charles Ave along +X · 1 unit = 1 m</dd>
+    </dl>
+  </div>
+  <div id="tip" class="tip" hidden></div>
+  <div class="plate fitkey" id="fitkey" hidden><b>Mesh vs scan (RMSE)</b><i></i><span>0 m</span><span>0.25</span><span>0.5</span><span>≥1 m</span></div>
+  <div id="hint" class="hint">Drag to orbit · scroll or pinch to zoom · two fingers or right-drag to pan</div>
+  <nav class="dock" aria-label="View controls">
+    <div class="row">
+      <button class="btn on" id="treesBtn" title="Show trees">Trees</button>
+      <button class="btn on" id="namesBtn" title="Building names">Names</button>
+      <button class="btn on" id="orthoBtn" title="Aerial photo on the ground">Photo</button>
+      <button class="btn" id="fitBtn" title="Tint buildings by how well the mesh fits the scan">Fit</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="sunBtn" title="Move the sun"><span class="k">☀</span></button>
+      <button class="btn" id="topBtn" title="Plan view"><span class="k">⊡</span></button>
+      <button class="btn" id="resetBtn" title="Reset view"><span class="k">⌂</span></button>
+    </div>
+  </nav>
+  <div class="load" id="load"><div class="box"><b>Decoding the survey</b><span id="loadMsg">Unpacking point-cloud meshes…</span><div class="bar"><i id="loadBar"></i></div></div></div>
+</div>
+
+<script type="text/plain" id="glb-buildings">__BUILDINGS_B64__</script>
+<script type="text/plain" id="glb-terrain">__TERRAIN_B64__</script>
+<img id="ortho" hidden alt="" src="data:image/jpeg;base64,__ORTHO_B64__">
+<script type="application/json" id="trees-json">__TREES_JSON__</script>
+<script type="application/json" id="meta-json">__META_JSON__</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+  const T=THREE, $=id=>document.getElementById(id);
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const meta=JSON.parse($('meta-json').textContent||'{}');
+  const treesData=JSON.parse($('trees-json').textContent||'[]');
+  if(meta.imagery) $('stImagery').textContent=meta.imagery;
+  const setLoad=(msg,frac)=>{ $('loadMsg').textContent=msg; $('loadBar').style.width=Math.round(frac*100)+'%'; };
+
+  function b64ToBuf(b64){ const bin=atob(b64.trim()); const n=bin.length; const u8=new Uint8Array(n); for(let i=0;i<n;i++) u8[i]=bin.charCodeAt(i); return u8.buffer; }
+
+  const canvas=$('c'); let W=innerWidth,H=innerHeight;
+  const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(W,H);
+  renderer.outputEncoding=T.sRGBEncoding; renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=T.PCFSoftShadowMap;
+  const scene=new T.Scene(); scene.background=new T.Color(0xc9dbe7); scene.fog=new T.Fog(0xc9dbe7, 900, 2600);
+  const camera=new T.PerspectiveCamera(48, W/H, 1, 6000);
+  const controls=new T.OrbitControls(camera, canvas); controls.enableDamping=!reduced; controls.dampingFactor=0.08; controls.maxPolarAngle=Math.PI/2-0.03; controls.minDistance=25; controls.maxDistance=2600; controls.screenSpacePanning=false;
+
+  const hemi=new T.HemisphereLight(0xdfeaf2, 0x4f5a40, 0.85); scene.add(hemi);
+  const sun=new T.DirectionalLight(0xfff2dc, 1.35); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048); sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.6; scene.add(sun); scene.add(sun.target);
+  let sunAz=Math.PI*0.72, sunEl=0.95;
+  function placeSun(R){ const r=R*1.4; sun.position.set(Math.cos(sunAz)*Math.cos(sunEl)*r, Math.sin(sunEl)*r, Math.sin(sunAz)*Math.cos(sunEl)*r); sun.target.position.set(0,0,0); const s=sun.shadow.camera; s.left=-R; s.right=R; s.top=R; s.bottom=-R; s.near=1; s.far=r*3; s.updateProjectionMatrix(); }
+
+  const root=new T.Group(); scene.add(root);
+  const named=[]; let buildingsGroup=null, terrainMesh=null, treesGroup=null, orthoTex=null, bounds=null;
+  const loader=new T.GLTFLoader();
+
+  function parseGLB(id, msg, frac){ return new Promise((res,rej)=>{ setLoad(msg,frac); setTimeout(()=>{ const buf=b64ToBuf($(id).textContent); loader.parse(buf,'',g=>res(g.scene),rej); },20); }); }
+
+  function addBuildings(sc){
+    buildingsGroup=sc; const box=new T.Box3();
+    sc.traverse(o=>{ if(!o.isMesh) return;
+      o.material=new T.MeshStandardMaterial({vertexColors:!!o.geometry.attributes.color, color:0xffffff, roughness:0.86, metalness:0.0, flatShading:true});
+      if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+      o.castShadow=true; o.receiveShadow=true;
+      addFitColors(o);
+      const nm=(o.userData&&o.userData.label)||'';
+      if(nm){ box.setFromObject(o); const c=box.getCenter(new T.Vector3()); c.y=box.max.y;
+        const el=document.createElement('div'); el.className='lbl'; el.textContent=nm; $('labels').appendChild(el);
+        const size=box.getSize(new T.Vector3()); named.push({name:nm, pos:c, el, mesh:o, h:Math.round(box.max.y-box.min.y), w:Math.round(size.x), d:Math.round(size.z), major:(size.x*size.z>1500)||/stadium|library|hall|center|centre|gibson|yulman|reily|commons|auditorium|chapel/i.test(nm)}); }
+    });
+    root.add(sc); const total=(meta.named||0)+(meta.unnamed||0); $('stBuild').textContent=`${total.toLocaleString()} · ${meta.named||named.length} named at 1 m roof detail`;
+    if(fitVals.length){ const s=[...fitVals].sort((a,b)=>a-b); const med=s[Math.floor(s.length/2)], p90=s[Math.floor(s.length*0.9)]; $('stFit').textContent=`median ${med.toFixed(2)} m · 90th pct ${p90.toFixed(2)} m · ${fitVals.length.toLocaleString()} buildings`; }
+    return total; }
+
+  /* accuracy heatmap: a second colour attribute from each building's fit:rmse (metres), swapped in by the Fit button */
+  const fitStops=[[0,0x2e7d4f],[0.25,0xd9c341],[0.5,0xd0541f],[1.0,0x7a1f1f]];
+  function fitColor(r){ if(r==null||isNaN(r)) return new T.Color(0x9aa39c); for(let i=1;i<fitStops.length;i++){ if(r<=fitStops[i][0]){ const a=fitStops[i-1], b=fitStops[i]; return new T.Color(a[1]).lerp(new T.Color(b[1]), (r-a[0])/(b[0]-a[0])); } } return new T.Color(fitStops[fitStops.length-1][1]); }
+  const fitVals=[];
+  function addFitColors(o){ const ud=o.userData||{}; const geo=o.geometry; const n=geo.attributes.position.count; const arr=new Uint8Array(n*4); arr.fill(255);
+    const paint=(s,c,r)=>{ const col=fitColor(r); for(let i=s;i<s+c;i++){ arr[i*4]=col.r*255; arr[i*4+1]=col.g*255; arr[i*4+2]=col.b*255; } };
+    if(ud.ranges){ for(const [s,c,r] of ud.ranges){ paint(s,c,r); if(r!=null) fitVals.push(r); } } else { paint(0,n,ud.fit); if(ud.fit!=null) fitVals.push(ud.fit); }
+    geo.setAttribute('fitColor', new T.BufferAttribute(arr,4,true)); geo.userData.baseColor=geo.attributes.color||null; }
+  let fitMode=false;
+  function setFitMode(on){ fitMode=on; if(!buildingsGroup) return; buildingsGroup.traverse(o=>{ if(!o.isMesh) return; const geo=o.geometry; if(on) geo.setAttribute('color', geo.attributes.fitColor); else if(geo.userData.baseColor) geo.setAttribute('color', geo.userData.baseColor); o.material.vertexColors=true; o.material.needsUpdate=true; }); $('fitkey').hidden=!on; $('fitBtn').classList.toggle('on',on); }
+
+  function addTerrain(sc, img){
+    orthoTex=new T.Texture(img); orthoTex.flipY=false; orthoTex.encoding=T.sRGBEncoding; orthoTex.wrapS=orthoTex.wrapT=T.ClampToEdgeWrapping;
+    orthoTex.minFilter=T.LinearMipmapLinearFilter; orthoTex.magFilter=T.LinearFilter; orthoTex.anisotropy=Math.min(8, renderer.capabilities.getMaxAnisotropy()); orthoTex.needsUpdate=true;
+    sc.traverse(o=>{ if(!o.isMesh) return; terrainMesh=o; if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+      o.material=new T.MeshStandardMaterial({map:orthoTex, color:0xffffff, roughness:1, metalness:0}); o.receiveShadow=true; });
+    root.add(sc); }
+
+  function addTrees(list){
+    treesGroup=new T.Group();
+    const crownGeo=new T.IcosahedronGeometry(1,1); crownGeo.scale(1,0.72,1);
+    const trunkGeo=new T.CylinderGeometry(0.35,0.5,1,6);
+    const crownMat=new T.MeshStandardMaterial({color:0xffffff, roughness:0.95, flatShading:true});
+    const trunkMat=new T.MeshStandardMaterial({color:0x5a4634, roughness:1});
+    const crown=new T.InstancedMesh(crownGeo, crownMat, list.length), trunk=new T.InstancedMesh(trunkGeo, trunkMat, list.length);
+    crown.castShadow=true; crown.receiveShadow=false; trunk.castShadow=true;
+    const M=new T.Matrix4(), q=new T.Quaternion(), p=new T.Vector3(), s=new T.Vector3(), col=new T.Color();
+    const greens=[0x3f6b2e,0x4a7a34,0x36602a,0x567f3b,0x2f5726,0x62883f];
+    let seed=7; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+    list.forEach((t,i)=>{ const h=t.height, r=t.radius, gy=t.z;
+      const ch=Math.max(2.5, h*0.62), trunkH=Math.max(1.5, h-ch*0.6);
+      q.setFromAxisAngle(new T.Vector3(0,1,0), rnd()*Math.PI*2);
+      p.set(t.x, gy+trunkH*0.5, -t.y); s.set(1,trunkH,1); M.compose(p,q,s); trunk.setMatrixAt(i,M);
+      p.set(t.x, gy+h-ch*0.5, -t.y); s.set(r*(0.9+rnd()*0.3), ch/0.72*0.5, r*(0.9+rnd()*0.3)); M.compose(p,q,s); crown.setMatrixAt(i,M);
+      col.setHex(greens[i%greens.length]).offsetHSL((rnd()-0.5)*0.03,(rnd()-0.5)*0.12,(rnd()-0.5)*0.08); crown.setColorAt(i,col); });
+    crown.instanceMatrix.needsUpdate=true; trunk.instanceMatrix.needsUpdate=true; if(crown.instanceColor) crown.instanceColor.needsUpdate=true;
+    treesGroup.add(trunk, crown); root.add(treesGroup); $('stTrees').textContent=`${list.length.toLocaleString()} · detected from the canopy returns`; }
+
+  function frameScene(){ bounds=new T.Box3().setFromObject(root); const c=bounds.getCenter(new T.Vector3()), sz=bounds.getSize(new T.Vector3()); const R=Math.max(sz.x,sz.z)*0.5; placeSun(R*1.05);
+    controls.target.copy(c).setY(0); camera.position.set(c.x+R*0.15, R*0.95, bounds.max.z+R*0.55); controls.update(); }
+  function reset(){ const c=bounds.getCenter(new T.Vector3()), sz=bounds.getSize(new T.Vector3()); const R=Math.max(sz.x,sz.z)*0.5; controls.target.copy(c).setY(0); camera.position.set(c.x+R*0.15, R*0.95, bounds.max.z+R*0.55); controls.update(); }
+  function topView(){ const c=bounds.getCenter(new T.Vector3()), sz=bounds.getSize(new T.Vector3()); controls.target.copy(c).setY(0); camera.position.set(c.x, Math.max(sz.x,sz.z)*1.15, c.z+0.001); controls.update(); }
+
+  /* picking */
+  const ray=new T.Raycaster(); let downAt=null;
+  canvas.addEventListener('pointerdown',e=>{ downAt=[e.clientX,e.clientY]; });
+  canvas.addEventListener('pointerup',e=>{ if(!downAt) return; const moved=Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt=null; if(moved>6) return; pick(e.clientX,e.clientY); });
+  function pick(px,py){ if(!buildingsGroup) return; ray.setFromCamera(new T.Vector2(px/W*2-1, -(py/H)*2+1), camera); const hits=ray.intersectObject(buildingsGroup,true); if(!hits.length){ hideTip(); return; }
+    const o=hits[0].object; const rec=named.find(n=>n.mesh===o); if(!rec){ hideTip(); return; }   // merged house meshes carry no per-building identity
+    const fr=o.userData&&o.userData.fit; const tip=$('tip'); tip.innerHTML=`<b>${rec.name}</b><small>${rec.h} m tall (LiDAR) · ${rec.w} × ${rec.d} m${fr!=null?` · fit ${fr.toFixed(2)} m RMSE`:''}</small>`; tip.hidden=false; tip.style.left=px+'px'; tip.style.top=(py-14)+'px'; }
+  function hideTip(){ $('tip').hidden=true; }
+
+  /* dock */
+  let showNames=true;
+  $('treesBtn').onclick=e=>{ if(!treesGroup) return; treesGroup.visible=!treesGroup.visible; e.currentTarget.classList.toggle('on',treesGroup.visible); };
+  $('namesBtn').onclick=e=>{ showNames=!showNames; e.currentTarget.classList.toggle('on',showNames); if(!showNames) named.forEach(n=>n.el.classList.remove('on')); };
+  $('orthoBtn').onclick=e=>{ if(!terrainMesh) return; const on=!!terrainMesh.material.map; terrainMesh.material.map=on?null:orthoTex; terrainMesh.material.color.setHex(on?0x8a9a6a:0xffffff); terrainMesh.material.needsUpdate=true; e.currentTarget.classList.toggle('on',!on); };
+  $('fitBtn').onclick=()=>setFitMode(!fitMode);
+  $('sunBtn').onclick=()=>{ sunAz+=Math.PI/3; const sz=bounds.getSize(new T.Vector3()); placeSun(Math.max(sz.x,sz.z)*0.52); };
+  $('topBtn').onclick=topView; $('resetBtn').onclick=reset;
+
+  /* labels */
+  const tmp=new T.Vector3();
+  function updateLabels(){ if(!named.length) return; const dist=camera.position.distanceTo(controls.target); const all=dist<520;
+    for(const n of named){ if(!showNames || !(all||n.major) || dist>1500){ n.el.classList.remove('on'); continue; } tmp.copy(n.pos).project(camera);
+      if(tmp.z>1||tmp.x<-1.05||tmp.x>1.05||tmp.y<-1.05||tmp.y>1.05){ n.el.classList.remove('on'); continue; }
+      n.el.classList.add('on'); n.el.style.transform=`translate(${((tmp.x+1)/2*W).toFixed(1)}px, ${((1-tmp.y)/2*H-6).toFixed(1)}px) translate(-50%,-100%)`; } }
+
+  function resize(){ W=innerWidth; H=innerHeight; camera.aspect=W/H; camera.updateProjectionMatrix(); renderer.setSize(W,H); }
+  addEventListener('resize',resize);
+  function frame(){ requestAnimationFrame(frame); controls.update(); updateLabels(); renderer.render(scene,camera); }
+
+  (async()=>{
+    try{
+      const b=await parseGLB('glb-buildings','Unpacking building meshes…',0.15); addBuildings(b);
+      const t=await parseGLB('glb-terrain','Reading the ground surface…',0.45);
+      setLoad('Draping the aerial photo on the ground…',0.6); const img=$('ortho'); if(!(img.complete&&img.naturalWidth)) await new Promise((res,rej)=>{ img.onload=res; img.onerror=()=>rej(new Error('orthophoto image would not decode')); }); addTerrain(t, img);
+      setLoad('Planting '+treesData.length.toLocaleString()+' trees from the canopy…',0.8); await new Promise(r=>setTimeout(r,20)); addTrees(treesData);
+      frameScene(); setLoad('Ready',1); $('load').classList.add('gone'); frame(); setTimeout(()=>$('hint').classList.add('gone'), 8000);
+    }catch(err){ console.error(err); $('loadMsg').textContent='Could not decode the survey at "'+$('loadMsg').textContent+'": '+(err&&err.message||err); }
+  })();
+})();
+</script>
