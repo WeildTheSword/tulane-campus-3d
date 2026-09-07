@@ -6,7 +6,7 @@ Living resume packet. Update in place; don't recreate.
 
 **Goal:** Build a to-scale, photoreal-as-public-data-allows 3D model of Tulane's uptown campus (OSM footprints + USGS 3DEP 2021 LiDAR + NAIP 0.3 m orthophoto) and get it into the voxel viewer / game engines. User's ask (2026-09-06): "Do the whole thing. Use the most advanced scanning and method to map the campus and make the environment look exactly like Tulane's campus."
 
-**Task in flight:** none. Everything is built and published; the full-extent 0.5 m build finished 23:58 (numbers in Docs/accuracy-plan.md §2). Next work items are Docs/accuracy-plan.md §4 (exact-polygon walls first). All changes remain uncommitted — commit only when the user asks.
+**Task in flight:** none. Everything is built and published; the full-extent 0.5 m build finished 23:58 (numbers in Docs/accuracy-plan.md §2). Next work items are Docs/accuracy-plan.md §4 (exact-polygon walls first). Committed on branch `lidar-accuracy-upgrade` (5cf05bd, 2026-09-07); `main` still at 00dd9a3 — fast-forward when the user wants.
 
 ## Status
 
@@ -16,7 +16,7 @@ Living resume packet. Update in place; don't recreate.
 - DONE — fetcher: `fetch_naip.py` requests UTM tiles on an exact grid (the lon/lat request padded latitude by 7.7 % → duplicated seam strips, user-reported). `fetch_footprints.py` for the city layer. Data re-fetched: `data/naip*.png`, `data/ortho2025*.png` (5633×6427, EPSG:26915).
 - DONE — core validated: median 0.25 m, inlier 0.986, 85% planar, 1% > 1 m; 11 scan-found structures, 8 demolished, 32 post-2021; page repacked and republished (12.1 MB) with the 2025 ortho credit.
 - DONE — full-extent build: 4,089 buildings, median 0.19 m, inlier 0.976, 95% planar, 13 structures, 13 demolished, 63 post-2021, 12,000 trees; GLBs in `out/` regenerated with the 2025 ortho (terrain 278 MB).
-- NOT DONE — git commit (never asked); `.venv/` not gitignored; exact-polygon walls; roof colour displacement; published ground-truth heights.
+- DONE — committed on `lidar-accuracy-upgrade` (5cf05bd); `.venv/` ignored. NOT DONE — merge to `main`; exact-polygon walls; roof colour displacement; published ground-truth heights.
 
 ## Decisions + WHY
 
