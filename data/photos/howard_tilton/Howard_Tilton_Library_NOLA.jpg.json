@@ -1,0 +1,28 @@
+{
+ "source": "Wikimedia Commons",
+ "file": "File:Howard Tilton Library NOLA.jpg",
+ "page_url": "https://commons.wikimedia.org/wiki/File:Howard_Tilton_Library_NOLA.jpg",
+ "downloaded_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Howard_Tilton_Library_NOLA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+ "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Howard_Tilton_Library_NOLA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+ "author": "Tulane Public Relations",
+ "author_raw": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/28035080@N04\">Tulane Public Relations</a>",
+ "credit": "Flickr: Howard Tilton Library",
+ "licence": "CC BY 2.0",
+ "licence_url": "https://creativecommons.org/licenses/by/2.0",
+ "attribution_required": "true",
+ "date_original": "2001-08-20 00:46:21",
+ "original_pixels": [
+  1800,
+  1181
+ ],
+ "gps": [
+  null,
+  null
+ ],
+ "description": "Howard-Tilton Library, Tulane University, New Orleans.",
+ "wikidata": "Q16466615",
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "osm_way": 327443277,
+ "viewpoint": "exterior, oblique low angle along a long facade from the lawn/plaza; pre-2016 (original 4-storey building only); Tulane PR watermark",
+ "facade_notes": "original: off-white exposed-aggregate precast concrete piers/fins, tall narrow dark windows, recessed full-height glazing at ground floor behind planters"
+}

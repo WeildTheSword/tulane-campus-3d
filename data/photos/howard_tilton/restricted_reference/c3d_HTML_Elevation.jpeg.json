@@ -1,0 +1,10 @@
+{
+ "source": "Tulane University campus map (Concept3D map id 1015, location 188134)",
+ "downloaded_url": "https://assets.concept3d.com/assets/1015/HTML_Elevation_66209c462eb9f.jpeg",
+ "author": "Tulane University (unattributed)",
+ "licence": "All rights reserved, (c) Tulane University. NOT openly licensed. Use only as a visual reference for extracting facade attributes (colour/material/window layout); do not redistribute the file or bake it into a published texture.",
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "wikidata": "Q16466615",
+ "osm_way": 327443277,
+ "viewpoint": "architects drawing: \"Newcomb Place Elevation\" by Nolan, Norman & Nolan (original 1960s design incl. planned upper floors) - fin/bay rhythm, balcony band, entrance; photo of a print"
+}

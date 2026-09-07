@@ -1,0 +1,31 @@
+{
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "osm_way": 327443277,
+ "wikidata": "Q16466615",
+ "commons_title": "File:Tulane80sNewcombTennis.jpg",
+ "page_url": "https://commons.wikimedia.org/wiki/File:Tulane80sNewcombTennis.jpg",
+ "source_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Tulane80sNewcombTennis.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+ "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Tulane80sNewcombTennis.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+ "author": "Infrogmation of New Orleans",
+ "author_raw": "Infrogmation of New Orleans",
+ "licence": "CC BY-SA 3.0",
+ "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+ "date_original": "between circa 1980 and circa 1982<div style=\"display: none;\">date QS:P,+1980-00-00T00:00:00Z/8,P1319,+1980-00-00T00:00:00Z/9,P1326,+1982-00-00T00:00:00Z/9,P1480,Q5727902</div>",
+ "description": "Campus of Tulane University, New Orleans. Tennis court off Newcomb Quad at start of the 1980s. (Area was later built over by music building complex expansion, completed in 1984.) Howard-Tilton Library building seen in background right.",
+ "original_pixels": [
+  1500,
+  1025
+ ],
+ "downloaded_pixels": [
+  1280,
+  875
+ ],
+ "gps": [
+  null,
+  null,
+  null
+ ],
+ "in_commons_category_Howard-Tilton_Library": true,
+ "file_reused_from_earlier_download": false,
+ "downloaded_by": "tulane-campus-3d/1.0 (research) facade-spec lane"
+}

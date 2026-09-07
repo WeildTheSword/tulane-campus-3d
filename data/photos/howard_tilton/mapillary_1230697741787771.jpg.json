@@ -1,0 +1,27 @@
+{
+ "source": "Mapillary",
+ "image_id": "1230697741787771",
+ "page_url": "https://www.mapillary.com/app/?pKey=1230697741787771",
+ "downloaded_url_note": "thumb_2048_url is a short-lived signed CDN URL; re-request via graph API",
+ "author": "Loc_WR",
+ "creator_id": "601879502687509",
+ "licence": "CC BY-SA 4.0 (Mapillary Terms: user content available under CC BY-SA; attribution must show Mapillary logo + link when serving images yourself)",
+ "licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+ "captured_at": "2016-03-20T16:55:36.985000+00:00",
+ "camera_type": "perspective",
+ "pixels": [
+  1920,
+  1080
+ ],
+ "camera_lonlat": [
+  -90.123113893942,
+  29.939798848969
+ ],
+ "compass_angle": 87.067978785844,
+ "bearing_to_building": 82.4,
+ "distance_m": 85.0,
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "wikidata": "Q16466615",
+ "osm_way": 327443277,
+ "viewpoint": "MIS-AIMED: shows houses across the street, not the library (compass angle unreliable) - discard"
+}

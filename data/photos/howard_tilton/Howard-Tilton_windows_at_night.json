@@ -1,0 +1,31 @@
+{
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "osm_way": 327443277,
+ "wikidata": "Q16466615",
+ "commons_title": "File:Howard-Tilton windows at night.jpg",
+ "page_url": "https://commons.wikimedia.org/wiki/File:Howard-Tilton_windows_at_night.jpg",
+ "source_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Howard-Tilton_windows_at_night.jpg/1920px-Howard-Tilton_windows_at_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+ "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Howard-Tilton_windows_at_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+ "author": "Tulane Public Relations",
+ "author_raw": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/28035080@N04\">Tulane Public Relations</a>",
+ "licence": "CC BY 2.0",
+ "licence_url": "https://creativecommons.org/licenses/by/2.0",
+ "date_original": "2011-01-13 21:02:15",
+ "description": "Tulane University, New Orleans. View into windows of Howard-Tilton Library at night.",
+ "original_pixels": [
+  4256,
+  2832
+ ],
+ "downloaded_pixels": [
+  1920,
+  1278
+ ],
+ "gps": [
+  null,
+  null,
+  null
+ ],
+ "in_commons_category_Howard-Tilton_Library": true,
+ "file_reused_from_earlier_download": false,
+ "downloaded_by": "tulane-campus-3d/1.0 (research) facade-spec lane"
+}

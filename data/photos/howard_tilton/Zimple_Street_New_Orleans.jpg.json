@@ -1,0 +1,28 @@
+{
+ "source": "Wikimedia Commons",
+ "file": "File:Zimple Street, New Orleans.jpg",
+ "page_url": "https://commons.wikimedia.org/wiki/File:Zimple_Street,_New_Orleans.jpg",
+ "downloaded_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Zimple_Street%2C_New_Orleans.jpg/1920px-Zimple_Street%2C_New_Orleans.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+ "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Zimple_Street%2C_New_Orleans.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+ "author": "Infrogmation of New Orleans",
+ "author_raw": "Infrogmation of New Orleans",
+ "credit": "https://www.flickr.com/photos/infrogmation/40047263890/",
+ "licence": "CC BY 2.0",
+ "licence_url": "https://creativecommons.org/licenses/by/2.0",
+ "attribution_required": "true",
+ "date_original": "2018-05-01 10:22:11",
+ "original_pixels": [
+  5184,
+  3888
+ ],
+ "gps": [
+  null,
+  null
+ ],
+ "description": "Tulane University Howard-Tilton Library",
+ "wikidata": "Q16466615",
+ "building": "Howard-Tilton Memorial Library, 7001 Freret St, New Orleans LA 70118",
+ "osm_way": 327443277,
+ "viewpoint": "exterior from Zimpel St (south-east) showing rear facade with addition, overcast",
+ "facade_notes": "original rear + addition"
+}

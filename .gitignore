@@ -4,9 +4,11 @@ data/*
 !data/lidar/
 data/lidar/*
 !data/lidar/.gitkeep
-# curated facade specs are results, not downloads (photos under data/photos/ stay ignored and re-fetchable)
+# curated facade specs and the CC-licensed reference photos they were measured from (see data/photos/ATTRIBUTION.md)
 !data/facades/
 !data/facades/*.json
+!data/photos/
+!data/photos/**
 out/*
 !out/.gitkeep
 *.laz
